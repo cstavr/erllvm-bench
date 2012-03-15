@@ -83,6 +83,10 @@ echo %====================== Running Benchmarks ==============================
 echo %========================================================================
 echo 'Results will be placed in results/runtime.res'
 
+if [ ! -d results/ ]; then
+  mkdir results/
+fi
+
 for i in `seq 1 $2`
 do
   $HIPE_RTS -pa "." -noshell -s bm run
