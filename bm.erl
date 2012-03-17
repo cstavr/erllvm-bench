@@ -14,15 +14,16 @@
 
 run() ->
   {ok,Dev} = file:open("results/runtime.res", [write]),
-  Files = [
-    fib,tak,length_c,length,length_u,qsort,smith,huff,decode,
-    ring,life,barnes,yaws_html,prettypr,nrev,stable
-  ],
-  Extra = 
+  Files =
+    [fib,tak,length_c,length,length_u,qsort,smith,huff,decode,
+    ring,life,barnes,yaws_html,prettypr,nrev,stable],
+  Extra =
     [nrev,pseudoknot, float_bm,fun_bm,freq_bm,call_tail_bm,call_bm,
-     bs_sum_bm,bs_simple_bm,bs_bm,bin_to_term_bm
-  ],
-  
+     bs_sum_bm,bs_simple_bm,bs_bm,bin_to_term_bm],
+  Loops =
+    [sum, zip, zip3, mean],
+
+  bench(Dev, Loops),
   bench(Dev, Files),
   bench_file(Dev, w_estone),
   bench(Dev, Extra),

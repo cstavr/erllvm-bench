@@ -19,13 +19,13 @@ while test 1=1
 do
     case "$1" in
      *--rts_opt*)
-	    shift
-	    rts_options=$1
-	    shift
-	    ;;
+            shift
+            rts_options=$1
+            shift
+            ;;
      *)
-	    break
-	    ;;
+            break
+            ;;
     esac
 done
 ##
@@ -100,4 +100,3 @@ rm -f $RES_FILE
 rm -f $lockfile
 
 echo %========================================================================
-
