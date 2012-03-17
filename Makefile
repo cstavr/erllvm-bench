@@ -23,7 +23,7 @@ TARGETS= bm.beam w_estone.beam estone.beam prettypr.beam barnes.beam \
 all: $(TARGETS)
 
 %.beam: %.erl 
-	$(OTP_DIR)/bin/erlc $< 
+	`which erlc` $< 
 
 clean:
 	rm -f *.beam

@@ -55,7 +55,7 @@ bench_file(Dev, File) ->
   HT = bench_on_clean_heap(File),
   io:format(Dev," ~6.2f &",[HT/1000]),
   %% LLVM
-  hipe:c(File,[o2,to_llvm]),
+  hipe:c(File,[o2,{to_llvm,o3}]),
   LT = bench_on_clean_heap(File),
   io:format(Dev," ~6.2f &",[LT/1000]),
   %% Speed Ups
