@@ -1,31 +1,16 @@
-ifndef EBIN
-EBIN = ebin
-endif
+ERLC = erlc
+ERL_COMPILE_FLAGS = +debug_info
 
-ifndef SRC
-SRC = src
-endif
+ERL_FILES = $(wildcard *.erl)
+BEAM_FILES = $(subst .erl,.beam,$(ERL_FILES))
 
-TARGETS= bm.beam w_estone.beam estone.beam prettypr.beam barnes.beam \
-	 life.beam ring.beam huff.beam smith.beam decode.beam \
-	 qsort.beam length_c.beam length.beam length_u.beam \
-	 fib.beam tak.beam nucleic.beam yaws_html.beam nrev.beam \
-	 pseudoknot.beam stable.beam float_bm.beam fun_bm.beam \
-	 freq_bm.beam call_tail_bm.beam call_bm.beam\
-   bs_sum_bm.beam bs_simple_bm.beam bs_bm.beam bin_to_term_bm.beam
+.PHONY: all clean
 
+all: $(BEAM_FILES)
 
-# ----------------------------------------------------
-# Targets
-# ----------------------------------------------------
-:all
-
-all: $(TARGETS)
-
-%.beam: %.erl 
-	`which erlc` $<
+%.beam: %.erl
+	$(ERLC) $(ERL_COMPILE_FLAGS) $<
 
 clean:
-	rm -f *.beam
+	$(RM) $(BEAM_FILES)
 	rm -f core erl_crash.dump
-
