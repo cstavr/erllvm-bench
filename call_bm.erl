@@ -1,7 +1,7 @@
 -module(call_bm).
 -export([test/0]).
 -export([local_call/1,external_call/1,fun_call/1,apply_fun/1,apply_mfa/1,
-	 atom_apply_mfa/1,select/1]).
+         atom_apply_mfa/1,select/1]).
 -export([foo/0,enc_foo/0]).
 
 test() ->
@@ -39,7 +39,7 @@ external_call(Iter) ->
 
 fun_call(Iter) ->
     fun_call(Iter, fun() -> ok end).
-fun_call(0, Fun) ->
+fun_call(0, _Fun) ->
     ok;
 fun_call(Iter, Fun) ->
     ?rep20(Fun()),
@@ -47,7 +47,7 @@ fun_call(Iter, Fun) ->
 
 apply_fun(Iter) ->
     apply_fun(Iter, fun() -> ok end).
-apply_fun(0, Fun) ->
+apply_fun(0, _Fun) ->
     ok;
 apply_fun(Iter, Fun) ->
     ?rep20(apply(Fun, [])),
@@ -62,7 +62,7 @@ apply_mfa(Iter) ->
 atom_apply_mfa(Iter) ->
     atom_apply_mfa(Iter, foo).
 
-atom_apply_mfa(0, Type) -> ok;
+atom_apply_mfa(0, _Type) -> ok;
 atom_apply_mfa(Iter, Type) ->
 %%    ?rep20(apply(?MODULE, list_to_atom(lists:concat(['f',Type])), [])),
     ?rep20(apply(?MODULE, list_to_atom("enc_" ++ atom_to_list(Type)), [])),
@@ -75,7 +75,7 @@ select(Iter) ->
 
 foo() -> ok.
 enc_foo() -> ok.
-    
+
 select1(a0) -> ?MODULE:a0();
 select1(a1) -> ?MODULE:a1();
 select1(a2) -> ?MODULE:a2();
@@ -127,4 +127,3 @@ select1(a47) -> ?MODULE:a47();
 select1(a48) -> ?MODULE:a48();
 select1(a49) -> ?MODULE:a49();
 select1(foo) -> foo().
-

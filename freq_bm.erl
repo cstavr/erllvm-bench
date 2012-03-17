@@ -11,12 +11,12 @@ test() ->
 tuple(Iter) ->
     tuple(Iter, random_list()).
 
-tuple(0, List) -> ok;
+tuple(0, _List) -> ok;
 tuple(Iter, List) ->
-    Cnt = t_count(List, erlang:make_tuple(256, 0)),
+    _Cnt = t_count(List, erlang:make_tuple(256, 0)),
     tuple(Iter-1, List).
 
-t_count([H|T], Cnt) ->    
+t_count([H|T], Cnt) ->
     I = H+1,
     t_count(T, setelement(I, Cnt, 1+element(I, Cnt)));
 t_count([], Cnt) -> Cnt.
@@ -24,12 +24,12 @@ t_count([], Cnt) -> Cnt.
 vector(Iter) ->
     vector(Iter, random_list()).
 
-vector(0, List) -> ok;
+vector(0, _List) -> ok;
 vector(Iter, List) ->
-    Cnt = v_count(List, vector:new(256, 0)),
+    _Cnt = v_count(List, vector:new(256, 0)),
     vector(Iter-1, List).
 
-v_count([H|T], Cnt) ->    
+v_count([H|T], Cnt) ->
     I = H+1,
     v_count(T, vector:set(I, Cnt, 1+vector:get(I, Cnt)));
 v_count([], Cnt) -> Cnt.
@@ -37,7 +37,7 @@ v_count([], Cnt) -> Cnt.
 ets(Iter) ->
     ets(Iter, random_list()).
 
-ets(0, List) -> ok;
+ets(0, _List) -> ok;
 ets(Iter, List) ->
     Tab = ets:new(count, [private,named_table]),
     lists:foreach(fun(Key) -> ets:insert(Tab, {Key,0}) end, lists:seq(0, 255)),
@@ -56,4 +56,3 @@ random_list() ->
 
 random_list(0, Acc) -> Acc;
 random_list(N, Acc) -> random_list(N-1, [random:uniform(256)-1|Acc]).
-

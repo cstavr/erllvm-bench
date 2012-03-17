@@ -17,7 +17,7 @@ run_benchmarks() ->
 lists(Iter) ->
     lists(Iter, data()).
 
-lists(0, List) -> ok;
+lists(0, _List) -> ok;
 lists(Iter, List) ->
     lists1(List, []),
     lists(Iter-1, List).
@@ -35,7 +35,7 @@ i32(Int)->
 bs(Iter) ->
     bs(Iter, data()).
 
-bs(0, Data) -> ok;
+bs(0, _Data) -> ok;
 bs(Iter, Data) ->
     bs1(Data, <<>>),
     bs(Iter-1, Data).
@@ -47,7 +47,7 @@ bs1([], Acc) -> Acc.
 partly_bs(Iter) ->
     partly_bs(Iter, data()).
 
-partly_bs(0, Data) -> ok;
+partly_bs(0, _Data) -> ok;
 partly_bs(Iter, Data) ->
     partly_bs1(Data, []),
     partly_bs(Iter-1, Data).

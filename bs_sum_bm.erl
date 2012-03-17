@@ -18,7 +18,7 @@ run_benchmarks() ->
 lists(Iter) ->
     lists(Iter, data()).
 
-lists(0, Data) -> ok;
+lists(0, _Data) -> ok;
 lists(Iter, Data) ->
     checksum_list(Data, 0),
     lists(Iter-1, Data).
@@ -32,7 +32,7 @@ checksum_list([H1,H2|T], Sum) ->
 bs(Iter) ->
     bs(Iter, list_to_binary(data())).
 
-bs(0, Data) -> ok;
+bs(0, _Data) -> ok;
 bs(Iter, Data) ->
     checksum_bs(Data, 0),
     bs(Iter-1, Data).
@@ -46,7 +46,7 @@ checksum_bs(<<N:8>>, Sum) ->
 bs_unrolled(Iter) ->
     bs_unrolled(Iter, list_to_binary(data())).
 
-bs_unrolled(0, Data) -> ok;
+bs_unrolled(0, _Data) -> ok;
 bs_unrolled(Iter, Data) ->
     checksum_bs_unrolled(Data, 0),
     bs_unrolled(Iter-1, Data).
@@ -60,4 +60,3 @@ checksum_bs_unrolled(<<N:8>>, Sum) ->
     Sum + (N bsl 8).
 
 data() -> lists:seq(1, 255).
-

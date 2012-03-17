@@ -99,8 +99,8 @@ loop(0,R) -> R;
 loop(N,_) -> loop(N-1,stable(10)).
 
 test() ->
-  T1 = bm:time_now(),
-    R = loop(12000,0),
+    T1 = bm:time_now(),
+    _R = loop(12000,0),
     Time = bm:time_since(T1),
     %% io:format("~w\t",[Time]),
     Time.

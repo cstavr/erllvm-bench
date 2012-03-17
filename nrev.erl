@@ -19,7 +19,7 @@ loop(N,L,_) -> loop(N-1,L,nrev(L)).
 test() ->
     T1 = bm:time_now(),
     L = iota(1000),
-    R = loop(1500,L,0),
+    _R = loop(1500,L,0),
     Time = bm:time_since(T1),
     Time.
 
