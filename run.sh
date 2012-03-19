@@ -1,102 +1,60 @@
 #!/bin/sh
-# This script executes all .erl files in this directory (function
-# test/0) and prints the runtime both for BEAM and native all tests
-# with coalescing regalloc
 
-if [ $# -ne 2 ]
-then
-  echo "Usage `basename $0` OTP_DIR Loops"
-  echo "Example `basename $0` ~/code/otp 1"
-  exit $E_BADARGS
+# Executes all benchmarks
+main ()
+{
+    echo "Running all benchmark classes..."
+
+    # If runtime/results.res exists rename it:
+    if [ -e results/runtime.res ]; then
+        NEW_RES=runtime.res-`date +"%y.%m.%d-%H:%M:%S"`
+        mv results/runtime.res results/$NEW_RES
+    fi
+
+    # Get failing
+    if [ -r failing ]; then
+        skipped=`cat failing`
+    else
+        skipped=
+    fi
+
+    for i in `seq 1 $2`; do
+        echo "Iter $i:"
+        # Look for BEAM files to run
+        for c in `find ebin/ -maxdepth 1 -mindepth 1 -type d`; do
+            class=`basename $c`
+            echo "   [Class] $class"
+            for f in `ls $c/*.beam`; do
+                bench=`basename $f .beam`
+                # Skip file if in failing
+                skip="no"
+                for s in $skipped; do
+                    if [ "$bench" = "$s" ]; then
+                        skip="yes"
+                        break
+                    fi
+                done
+                if [ "$skip" = "yes" ]; then
+                    continue
+                fi
+                # Else run benchmark
+                run_benchmark $bench $class
+            done
+        done
+        awk '{btl += $9 ;htl +=$11} END {print "Runtime BTL:", btl/NR, "Runtime HTL:", htl/NR, "lines", NR}' results/runtime.res
+    done
+}
+
+run_benchmark ()
+{
+    echo "   --- $1"
+    EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
+    erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $1 -s erlang halt
+}
+
+if [ $# -ne 2 ]; then
+    echo "Usage: `basename $0` OTP_DIR ITERATIONS"
+    exit 1
 fi
 
-if test -n "$USER"; then
-   USER=`whoami`
-   export USER
-fi
-
-while test 1=1
-do
-    case "$1" in
-     *--rts_opt*)
-            shift
-            rts_options=$1
-            shift
-            ;;
-     *)
-            break
-            ;;
-    esac
-done
-##
-## OSH dir argument
-##
-OSH_DIR=$1
-
-HIPE_RTS=$OSH_DIR/bin/erl
-
-GREP="grep -i"
-MSG_FILE=/tmp/hipe_bm_msg.$USER
-RES_FILE=/tmp/hipe_bm_res.$USER
-
-if test ! -x "$HIPE_RTS"; then
-    echo "Can't execute $HIPE_RTS"
-    echo "aborting..."
-    echo "Can't execute $HIPE_RTS" >$MSG_FILE
-    HOSTNAME=`hostname`
-    echo "Aborted bm run on $HOSTNAME..." >> $MSG_FILE
-    Mail -s "BM run aborted" $USER < $MSG_FILE
-    rm -f $MSG_FILE    exit
-fi
-
-lockfile=lock.test
-testdir=`pwd`
-
-trap 'rm -f $testdir/$lockfile; exit 1' 1 2 15
-
-if test -f $testdir/$lockfile; then
-    cat <<EOF
-
-  The lock file ./$lockfile exists.
-  Probably bm is already running...
-  If not, remove
-        ./$lockfile
-  and continue
-========================================================================
-
-EOF
-  exit
-else
-   echo $$ > $lockfile
-fi
-
-
-if test -f "$RES_FILE"; then
-  echo "There was an old $RES_FILE... removing"
-  rm -f $RES_FILE
-fi
-
-make OTP_DIR=$OSH_DIR
-
-echo %========================================================================
-echo %====================== Running Benchmarks ==============================
-echo %========================================================================
-echo 'Results will be placed in results/runtime.res'
-
-if [ ! -d results/ ]; then
-  mkdir results/
-fi
-
-for i in `seq 1 $2`
-do
-  $HIPE_RTS -pa "." -noshell -s bm run
-  cp results/runtime.res results/runtime_$i
-  awk '{btl += $9 ;htl +=$11} END { print  "Runtime BTL: ", btl/NR, "Runtime HTL: ", htl/NR,"lines",NR }' results/runtime_$i >> results/runtime_$i
-done
-
-HOSTNAME=`hostname`
-
-rm -f $RES_FILE
-rm -f $lockfile
-
-echo %========================================================================
+main

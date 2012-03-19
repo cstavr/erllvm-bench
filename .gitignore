@@ -1,4 +1,10 @@
 *.beam
+ebin/
 results/*
 *~
 \#*
+*.ll
+*.bc
+*.s
+*.o
+erl_crash.dump
