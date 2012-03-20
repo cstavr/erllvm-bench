@@ -4,7 +4,6 @@
 run_all ()
 {
     OTP_ROOT=$1
-    ITERS=$2
     echo "Running all benchmark classes..."
 
     ## Look for all available Classes to run
@@ -55,6 +54,25 @@ run_benchmark ()
     $OTP_ROOT/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH -s erlang halt
 }
 
+plot_diagram ()
+{
+    INPUT=$1
+    HASH=`basename $INPUT .res`
+    TMP_DIR=/dev/shm/erllvm-bench-diagrams
+    SCRIPTS_DIR=gnuplot_scripts
+    DIAGRAMS_DIR=diagrams
+    TMP_PERF=$TMP_DIR/speedup.perf
+    echo "Plotting results..."
+
+    mkdir -p $TMP_DIR
+    ## Copy speedup.perf template and append results:
+    cp $SCRIPTS_DIR/speedup.perf $TMP_PERF
+    cat results/$INPUT >> $TMP_PERF
+    ## Create diagram in diagram:
+    $SCRIPTS_DIR/bargraph.pl $TMP_PERF > $DIAGRAMS_DIR/$HASH.eps 2> /dev/null
+    rm -rf $TMP_DIR
+}
+
 main ()
 {
     if [ $# -eq 2 ]; then
@@ -75,15 +93,16 @@ main ()
 
     ## Run $ITERS times:
     for i in `seq 1 $ITERS`; do
-        ## If runtime/results.res exists rename it:
-        if [ -e results/runtime.res ]; then
-            NEW_RES=runtime.res-`date +"%y.%m.%d-%H:%M:%S"`
-            mv results/runtime.res results/$NEW_RES
-        fi
-
         echo "Iter $i/$ITERS:"
+        echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" > results/runtime.res
         $RUN $OTP_ROOT $CLASS
-        awk '{btl += $9 ;htl +=$11} END {print "Runtime BTL:", btl/NR, "Runtime HTL:", htl/NR}' results/runtime.res
+        awk '{btl += $3 ;htl += $5} END {print "Runtime BTL:", btl/NR, "Runtime HTL:", htl/NR}' results/runtime.res
+
+        ## Copy results to another .res file:
+        NEW_RES=runtime-`date +"%y.%m.%d-%H:%M:%S"`.res
+        mv results/runtime.res results/$NEW_RES
+
+        plot_diagram $NEW_RES
     done
 }
 

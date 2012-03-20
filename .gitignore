@@ -1,8 +1,9 @@
-*.beam
 ebin/
 results/*
+diagrams/*
 *~
 \#*
+*.beam
 *.ll
 *.bc
 *.s

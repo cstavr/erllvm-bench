@@ -4,7 +4,7 @@ EBIN_DIR   = ebin
 ERL_FILES  = $(wildcard *.erl)
 BEAM_FILES = $(subst .erl,.beam,$(ERL_FILES))
 
-.PHONY: all clean
+.PHONY: all clean distclean
 
 all: $(BEAM_FILES)
 	@(cd src && $(MAKE) EBIN_DIR=../$(EBIN_DIR) ERLC=$(ERLC) ERL_COMPILE_FLAGS=$(ERL_COMPILE_FLAGS) $@)
@@ -15,3 +15,6 @@ all: $(BEAM_FILES)
 clean:
 	$(RM) ebin/$(BEAM_FILES)
 	@(cd src && $(MAKE) EBIN_DIR=../$(EBIN_DIR) $@)
+
+distclean: clean
+	$(RM) -I diagrams/* results/*

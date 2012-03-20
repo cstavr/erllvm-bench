@@ -23,20 +23,19 @@ bench_file(Dev, File) ->
   io:format(Dev,"~-16w &", [File]),
   %% BEAM
   BT = run_bench(File, cold_heap),
-  io:format(Dev," ~6.2f &",[BT/1000]),
   %% HiPE
   hipe:c(File,[{regalloc,coalescing}, o2]),
   HT = run_bench(File, cold_heap),
-  io:format(Dev," ~6.2f &",[HT/1000]),
   %% LLVM
   hipe:c(File,[o2,to_llvm]),
   LT = run_bench(File, cold_heap),
-  io:format(Dev," ~6.2f &",[LT/1000]),
-  %% Speed Ups
+  %% First print speedups (better for bargraph.pl ;-):
   case File of
-    w_estone -> io:format(Dev," ~6.2f & ~6.2f \\\\\n", [LT/BT, LT/HT]);
-    _        -> io:format(Dev," ~6.2f & ~6.2f \\\\\n", [BT/LT, HT/LT])
-  end.
+    w_estone -> io:format(Dev," ~6.3f & ~6.3f &", [LT/BT, LT/HT]);
+    _        -> io:format(Dev," ~6.3f & ~6.3f &", [BT/LT, HT/LT])
+  end,
+  %% Then, print runtimes in secs:
+  io:format(Dev," ~6.2f & ~6.2f & ~6.2f \\\\\n",[BT/1000, HT/1000, LT/1000]).
 
 run_bench(File, cold_heap) ->
   garbage_collect(),
