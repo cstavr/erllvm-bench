@@ -22,15 +22,15 @@ bench_file(Dev, File) ->
   end,
   io:format(Dev,"~-16w &", [File]),
   %% BEAM
-  BT = bench_on_clean_heap(File),
+  BT = run_bench(File, cold_heap),
   io:format(Dev," ~6.2f &",[BT/1000]),
   %% HiPE
   hipe:c(File,[{regalloc,coalescing}, o2]),
-  HT = bench_on_clean_heap(File),
+  HT = run_bench(File, cold_heap),
   io:format(Dev," ~6.2f &",[HT/1000]),
   %% LLVM
   hipe:c(File,[o2,to_llvm]),
-  LT = bench_on_clean_heap(File),
+  LT = run_bench(File, cold_heap),
   io:format(Dev," ~6.2f &",[LT/1000]),
   %% Speed Ups
   case File of
@@ -38,8 +38,10 @@ bench_file(Dev, File) ->
     _        -> io:format(Dev," ~6.2f & ~6.2f \\\\\n", [BT/LT, HT/LT])
   end.
 
-bench_on_clean_heap(File) ->
+run_bench(File, cold_heap) ->
   garbage_collect(),
+  File:test();
+run_bench(File, warm_heap) ->
   File:test().
 
 time_now() ->
