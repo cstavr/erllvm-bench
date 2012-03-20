@@ -3,6 +3,8 @@
 ## Executes all benchmarks
 main ()
 {
+    OTP_ROOT=$1
+    ITERS=$2
     echo "Running all benchmark classes..."
 
     ## If runtime/results.res exists rename it:
@@ -18,12 +20,12 @@ main ()
         skipped=
     fi
 
-    for i in `seq 1 $2`; do
-        echo "Iter $i:"
+    for i in `seq 1 $ITERS`; do
+        echo "Iter $i/$ITERS:"
         ## Look for all available Classes to run
         for c in `find ebin/ -maxdepth 1 -mindepth 1 -type d`; do
-            class=`basename $c`
-            run_class $class
+            CLASS=`basename $c`
+            run_class $OTP_ROOT $CLASS
         done
         awk '{btl += $9 ;htl +=$11} END {print "Runtime BTL:", btl/NR, "Runtime HTL:", htl/NR, "lines", NR}' results/runtime.res
     done
@@ -31,31 +33,36 @@ main ()
 
 run_class ()
 {
-    class=$1
-    echo "   [Class] $class"
-    for f in `ls ebin/$class/*.beam`; do
-        bench=`basename $f .beam`
+    OTP_ROOT=$1
+    CLASS=$2
+    echo "   [Class] $CLASS"
+
+    for f in `ls ebin/$CLASS/*.beam`; do
+        BENCH=`basename $f .beam`
         ## Skip file if in failing
-        skip="no"
+        SKIP="no"
         for s in $skipped; do
-            if [ "$bench" = "$s" ]; then
-                skip="yes"
+            if [ "$BENCH" = "$s" ]; then
+                SKIP="yes"
                 break
             fi
         done
-        if [ "$skip" = "yes" ]; then
+        if [ "$SKIP" = "yes" ]; then
             continue
         fi
         ## Else run benchmark
-        run_benchmark $bench $class
+        run_benchmark $OTP_ROOT $BENCH
     done
 }
 
 run_benchmark ()
 {
-    echo "   --- $1"
+    OTP_ROOT=$1
+    BENCH=$2
+    echo "   --- $BENCH"
+
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
-    erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $1 -s erlang halt
+    $OTP_ROOT/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH -s erlang halt
 }
 
 if [ $# -ne 2 ]; then
