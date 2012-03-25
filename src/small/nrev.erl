@@ -20,8 +20,7 @@ test() ->
     T1 = run_benchmark:time_now(),
     L = iota(1000),
     _R = loop(1500,L,0),
-    Time = run_benchmark:time_since(T1),
-    Time.
+    run_benchmark:time_since(T1).
 
 compile(Flags) ->
     hipe:c(?MODULE,Flags).
