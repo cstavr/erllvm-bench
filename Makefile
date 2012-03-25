@@ -4,6 +4,11 @@ EBIN_DIR   = ebin
 ERL_FILES  = $(wildcard *.erl)
 BEAM_FILES = $(subst .erl,.beam,$(ERL_FILES))
 
+## Create needed folders (if not exist):
+$(shell [ -d "diagrams/" ] || mkdir diagrams/)
+$(shell [ -d "results/" ] || mkdir results/)
+$(shell [ -d "$(EBIN_DIR)/" ] || mkdir $(EBIN_DIR)/)
+
 .PHONY: all clean distclean
 
 all: $(BEAM_FILES)
@@ -17,4 +22,4 @@ clean:
 	@(cd src && $(MAKE) EBIN_DIR=../$(EBIN_DIR) $@)
 
 distclean: clean
-	$(RM) -I diagrams/* results/*
+	$(RM) -rI diagrams/ results/ ebin/
