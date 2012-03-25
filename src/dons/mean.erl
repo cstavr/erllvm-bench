@@ -1,4 +1,4 @@
-%% From: Smoking fast Haskell code using GHC?s new LLVM codegen
+%% From: Smoking fast Haskell code using GHC's new LLVM codegen
 %% by donsbot
 
 -module(mean).
