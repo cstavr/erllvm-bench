@@ -47,9 +47,9 @@ test() ->
 			 list_to_binary([0]),list_to_binary([18]),
 			 list_to_binary([52]),list_to_binary([95])]),
   
-    T1 = bm:time_now(),
+    T1 = run_benchmark:time_now(),
     _R = loop(500000,0,Frame),
-    Time = bm:time_since(T1),
+    Time = run_benchmark:time_since(T1),
     %% io:format("~w\t",[Time]),
     Time.
 
