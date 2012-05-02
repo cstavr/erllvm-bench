@@ -1,4 +1,5 @@
-DIRS = $(wildcard */)
+#DIRS = $(wildcard */)
+DIRS = shootout #XXX: Work with shootout for now!
 
 .PHONY: all clean
 
