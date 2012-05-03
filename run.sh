@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 ## Executes all benchmarks
 run_all ()
@@ -44,14 +44,31 @@ run_class ()
     done
 }
 
+calc ()
+{
+    echo $1 | bc -l
+}
+
 run_benchmark ()
 {
     OTP_ROOT=$1
+    OTP_ROOT_BEAM=$OTP_ROOT/otp_beam
+    OTP_ROOT_HIPE=$OTP_ROOT/otp_hipe
+    OTP_ROOT_ERLLVM=$OTP_ROOT/otp_erllvm
     BENCH=$2
     echo "   --- $BENCH"
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
-    $OTP_ROOT/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH -s erlang halt
+    ## Run benchmarks and collect results (as floats!):
+    BT_tmp=`$OTP_ROOT_BEAM/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH beam -s erlang halt`
+    BT=`calc $BT_tmp`
+    HT_tmp=`$OTP_ROOT_HIPE/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH hipe -s erlang halt`
+    HT=`calc $HT_tmp`
+    LT_tmp=`$OTP_ROOT_ERLLVM/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH erllvm -s erlang halt`
+    LT=`calc $LT_tmp`
+    ## Print results to "resuls/runtime.res":
+    printf "%-16s & %6.3f & %6.3f & %6.2f & %6.2f & %6.2f \\\\\\ \n" \
+	$BENCH `calc $BT/$LT` `calc $HT/$LT` `calc $BT/1000` `calc $HT/1000` `calc $LT/1000` >> results/runtime.res
 }
 
 plot_diagram ()
@@ -69,12 +86,12 @@ plot_diagram ()
     cp $SCRIPTS_DIR/speedup.perf $TMP_PERF
     cat results/$INPUT >> $TMP_PERF
     ## Check that their are no unmet dependencies:
-    echo -ne "Checking for gnuplot..."
-    command -v gnuplot > /dev/null/ 2>&1 || \
+    echo -n "Checking for gnuplot..."
+    command -v gnuplot > /dev/null 2>&1 || \
 	{ echo "gnuplot is required but it's not installed. Aborting." >&2; exit 1; }
     echo " ok!"
-    echo -ne "Checking for fig2ps..."
-    command -v gnuplot > /dev/null/ 2>&1 || \
+    echo -n "Checking for fig2ps..."
+    command -v gnuplot > /dev/null 2>&1 || \
 	{ echo "fig2ps is required but it's not installed. Aborting." >&2; exit 1; }
     echo " ok!"
     ## Create diagram in diagram:
@@ -88,13 +105,27 @@ usage ()
 Usage: $0 options OTP_ROOT
 
 This script runs the benchmarks using the provided OTP directory (first
-non-option argument) and creates the corresponding diagrams.
+non-option argument) as root and creates the corresponding diagrams.
+
+In the OTP directory provided there should be 3 subdirectories
+including complete OTP installations:
+  * otp_beam: This OTP is used to run BEAM stuff and all modules are
+              in BEAM.
+  * otp_hipe: This OTP is used to run HiPE stuff and is has been
+              compiled with --enable-native-libs.
+  * otp_erllvm: This OTP is used to run ErLLVM stuff and is has been
+                compiled with --enable-native-libs and [to_llvm].
 
 OPTIONS:
   -h    Show this message
   -a    Run all available benchmarks
   -c    Benchmark class to run
   -n    Number of iterations
+
+Examples:
+  1) $0 -c shootout -n 3 ~/git/otp
+  2) $0 -a ~/git/otp
+  3) $0 -a -n 5 ~/git/otp
 EOF
 }
 
@@ -156,7 +187,7 @@ EOF
 	awk '{btl += $3 ;htl += $5} END {print "Runtime BTL:", btl/NR, "Runtime HTL:", htl/NR}' \
 	    results/runtime.res
 
-        ## Copy results to another .res file:
+	## Copy results to another .res file:
 	NEW_RES=runtime-`date +"%y.%m.%d-%H:%M:%S"`.res
 	mv results/runtime.res results/$NEW_RES
 

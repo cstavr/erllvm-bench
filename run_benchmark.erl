@@ -3,39 +3,32 @@
 -export([run/1]).
 -export([time_now/0, time_since/1]).
 
-run([M]) ->
-  {ok, Dev} = file:open("results/runtime.res", [append]),
-  bench_file(Dev, M),
-  file:close(Dev).
+run([M, Mode]) ->
+  bench_file(M, Mode).
 
-bench_file(Dev, File) ->
+bench_file(File, Mode) ->
   case File of
     prettypr ->
       case get(prettypr_data) of
-        undefined -> {ok,[X]} =
-          file:consult("prettypr.input"),
-          put(prettypr_data, X),
-          ok;
-        _ -> ok
+	undefined -> {ok,[X]} =
+	  file:consult("prettypr.input"),
+	  put(prettypr_data, X),
+	  ok;
+	_ -> ok
       end;
     _ -> ok
   end,
-  io:format(Dev,"~-16w &", [File]),
-  %% BEAM
-  BT = run_bench(File, cold_heap),
-  %% HiPE
-  hipe:c(File,[{regalloc,coalescing}, o2]),
-  HT = run_bench(File, cold_heap),
-  %% LLVM
-  hipe:c(File,[o2,to_llvm]),
-  LT = run_bench(File, cold_heap),
-  %% First print speedups (better for bargraph.pl ;-):
-  case File of
-    w_estone -> io:format(Dev," ~6.3f & ~6.3f &", [LT/BT, LT/HT]);
-    _        -> io:format(Dev," ~6.3f & ~6.3f &", [BT/LT, HT/LT])
-  end,
-  %% Then, print runtimes in secs:
-  io:format(Dev," ~6.2f & ~6.2f & ~6.2f \\\\\n",[BT/1000, HT/1000, LT/1000]).
+  ok = compile(File, Mode),
+  io:format("~w~n", [run_bench(File, cold_heap)]).
+
+compile(_File, beam) ->
+  ok;
+compile(File, hipe) ->
+  {ok, File} = hipe:c(File, [{regalloc,coalescing}, o2]),
+  ok;
+compile(File, erllvm) ->
+  {ok, File} = hipe:c(File, [o2, to_llvm]),
+  ok.
 
 run_bench(File, cold_heap) ->
   garbage_collect(),
