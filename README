@@ -1,4 +1,33 @@
 ErLLVM Benchmark Suite
 ----------------------
 
-(insert description here)
+This is a work in progress for creating the ErLLVM Benchmark Suite. If
+you have any interesting benchmarks in mind don't hesitate to sent us
+an email at: erllvm -at- softlab -dot- ntua -dot- gr.
+
+Copying from `run.sh` usage:
+
+Usage: ./run.sh options OTP_ROOT
+
+This script runs the benchmarks using the provided OTP directory (first
+non-option argument) as root and creates the corresponding diagrams.
+
+In the OTP directory provided there should be 3 subdirectories
+including complete OTP installations:
+  * otp_beam: This OTP is used to run BEAM stuff and all modules are
+              in BEAM.
+  * otp_hipe: This OTP is used to run HiPE stuff and is has been
+              compiled with --enable-native-libs.
+  * otp_erllvm: This OTP is used to run ErLLVM stuff and is has been
+                compiled with --enable-native-libs and [to_llvm].
+
+OPTIONS:
+  -h    Show this message
+  -a    Run all available benchmarks
+  -c    Benchmark class to run
+  -n    Number of iterations
+
+Examples:
+  1) ./run.sh -c shootout -n 3 ~/git/otp
+  2) ./run.sh -a ~/git/otp
+  3) ./run.sh -a -n 5 ~/git/otp
