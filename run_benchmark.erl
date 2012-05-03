@@ -19,7 +19,7 @@ bench_file(File, Mode) ->
     _ -> ok
   end,
   ok = compile(File, Mode),
-  io:format("~w~n", [run_bench(File, cold_heap)]).
+  io:format("~w~n", [run_bench(File)]).
 
 compile(_File, beam) ->
   ok;
@@ -30,15 +30,17 @@ compile(File, erllvm) ->
   {ok, File} = hipe:c(File, [o2, to_llvm]),
   ok.
 
-run_bench(File, cold_heap) ->
-  garbage_collect(),
-  File:test();
-run_bench(File, warm_heap) ->
-  File:test().
+run_bench(File) ->
+  Myself = self(),
+  Opts = [], %[{min_heap_size, 100000000}],
+  spawn_opt(fun () -> Myself ! File:test() end, Opts),
+  receive
+    Result -> Result
+  end.
 
 time_now() ->
-  statistics(runtime).
+  erlang:now().
 
-time_since(_) ->
-  {_, T2} = statistics(runtime),
-  T2.
+time_since(T1) ->
+  T2 = erlang:now(),
+  timer:now_diff(T2, T1)/1000. % Return millisecs
