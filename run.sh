@@ -68,6 +68,15 @@ plot_diagram ()
     ## Copy speedup.perf template and append results:
     cp $SCRIPTS_DIR/speedup.perf $TMP_PERF
     cat results/$INPUT >> $TMP_PERF
+    ## Check that their are no unmet dependencies:
+    echo -ne "Checking for gnuplot..."
+    command -v gnuplot > /dev/null/ 2>&1 || \
+	{ echo "gnuplot is required but it's not installed. Aborting." >&2; exit 1; }
+    echo " ok!"
+    echo -ne "Checking for fig2ps..."
+    command -v gnuplot > /dev/null/ 2>&1 || \
+	{ echo "fig2ps is required but it's not installed. Aborting." >&2; exit 1; }
+    echo " ok!"
     ## Create diagram in diagram:
     $SCRIPTS_DIR/bargraph.pl $TMP_PERF > $DIAGRAMS_DIR/$HASH.eps 2> /dev/null
     rm -rf $TMP_DIR
