@@ -18,17 +18,7 @@ bench_file(File, Mode) ->
       end;
     _ -> ok
   end,
-  ok = compile(File, Mode),
   io:format("~w~n", [run_bench(File)]).
-
-compile(_File, beam) ->
-  ok;
-compile(File, hipe) ->
-  {ok, File} = hipe:c(File, [{regalloc,coalescing}, o2]),
-  ok;
-compile(File, erllvm) ->
-  {ok, File} = hipe:c(File, [o2, to_llvm]),
-  ok.
 
 run_bench(File) ->
   Myself = self(),

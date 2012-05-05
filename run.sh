@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 
+HIPE_FLAGS="{hipe, [{regalloc,coalescing}, o2]}"
+ERLLVM_FLAGS="{hipe, [o2, to_llvm]}"
+
 ## Executes all benchmarks
 run_all ()
 {
     OTP_ROOT=$1
+    DEBUG=$2
     echo "Running all benchmark classes..."
 
     ## Look for all available Classes to run
     for c in `find ebin/ -maxdepth 1 -mindepth 1 -type d`; do
 	CLASS=`basename $c`
-	run_class $OTP_ROOT $CLASS
+	run_class $OTP_ROOT $CLASS $DEBUG
     done
 }
 
@@ -17,6 +21,7 @@ run_class ()
 {
     OTP_ROOT=$1
     CLASS=$2
+    DEBUG=$3
     echo "   [Class] $CLASS"
 
     ## Get failing
@@ -26,9 +31,15 @@ run_class ()
 	skipped=
     fi
 
+    ## Get boilerplate
+    BOILERPLATE=src/$CLASS/boilerplate
+    if [ -r  $BOILERPLATE ]; then
+	skipped="$skipped `cat $BOILERPLATE`"
+    fi
+
     for f in `ls ebin/$CLASS/*.beam`; do
 	BENCH=`basename $f .beam`
-	## Skip file if in failing
+	## Skip file if in failing or boileprlate
 	SKIP="no"
 	for s in $skipped; do
 	    if [ "$BENCH" = "$s" ]; then
@@ -40,7 +51,7 @@ run_class ()
 	    continue
 	fi
 	## Else run benchmark
-	run_benchmark $OTP_ROOT $BENCH
+	run_benchmark $OTP_ROOT $BENCH $CLASS $DEBUG
     done
 }
 
@@ -52,23 +63,55 @@ calc ()
 run_benchmark ()
 {
     OTP_ROOT=$1
+    BENCH=$2
+    CLASS=$3
+    DEBUG=$4
     OTP_ROOT_BEAM=$OTP_ROOT/otp_beam
     OTP_ROOT_HIPE=$OTP_ROOT/otp_hipe
     OTP_ROOT_ERLLVM=$OTP_ROOT/otp_erllvm
-    BENCH=$2
     echo "   --- $BENCH"
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
-    ## Run benchmarks and collect results (as floats!):
-    BT_tmp=`$OTP_ROOT_BEAM/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH beam -s erlang halt`
+    ## Re-compile and run benchmarks, collect results:
+    ## BEAM
+    if [ $DEBUG -eq 1 ]; then
+	echo "Compiling BEAM..."
+    fi
+    if [ $DEBUG -eq 1 ]; then
+	echo "Running BEAM..."
+    fi
+    erlc -o ebin/$CLASS/ ebin/$CLASS/*.beam
+    BT_tmp=`$OTP_ROOT_BEAM/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
+	-s run_benchmark run $BENCH beam -s erlang halt`
     BT=`calc $BT_tmp`
-    HT_tmp=`$OTP_ROOT_HIPE/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH hipe -s erlang halt`
+
+    ## Vanilla HiPE
+    if [ $DEBUG -eq 1 ]; then
+	echo "Compiling with vanilla HiPE..."
+    fi
+    erlc +native +"'$HIPE_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
+    if [ $DEBUG -eq 1 ]; then
+	echo "Running vanilla HiPE..."
+    fi
+    HT_tmp=`$OTP_ROOT_HIPE/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
+	-s run_benchmark run $BENCH hipe -s erlang halt`
     HT=`calc $HT_tmp`
-    LT_tmp=`$OTP_ROOT_ERLLVM/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run $BENCH erllvm -s erlang halt`
+
+    ## ErLLVM
+    if [ $DEBUG -eq 1 ]; then
+	echo "Compiling with ErLLVM..."
+    fi
+    erlc +native +"'$ERLLVM_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
+    if [ $DEBUG -eq 1 ]; then
+	echo "Running ErLLVM..."
+    fi
+    LT_tmp=`$OTP_ROOT_ERLLVM/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
+	-s run_benchmark run $BENCH erllvm -s erlang halt`
     LT=`calc $LT_tmp`
     ## Print results to "resuls/runtime.res":
     printf "%-16s & %6.3f & %6.3f & %6.2f & %6.2f & %6.2f \\\\\\ \n" \
-	$BENCH `calc $BT/$LT` `calc $HT/$LT` `calc $BT/1000` `calc $HT/1000` `calc $LT/1000` >> results/runtime.res
+	$BENCH `calc $BT/$LT` `calc $HT/$LT` `calc $BT/1000` `calc $HT/1000` \
+	`calc $LT/1000` >> results/runtime.res
 }
 
 plot_diagram ()
@@ -110,11 +153,11 @@ non-option argument) as root and creates the corresponding diagrams.
 In the OTP directory provided there should be 3 subdirectories
 including complete OTP installations:
   * otp_beam: This OTP is used to run BEAM stuff and all modules are
-              in BEAM.
+	      in BEAM.
   * otp_hipe: This OTP is used to run HiPE stuff and is has been
-              compiled with --enable-native-libs.
+	      compiled with --enable-native-libs.
   * otp_erllvm: This OTP is used to run ErLLVM stuff and is has been
-                compiled with --enable-native-libs and [to_llvm].
+		compiled with --enable-native-libs and [to_llvm].
 
 OPTIONS:
   -h    Show this message
@@ -172,20 +215,23 @@ main ()
     if [ $DEBUG -eq 1 ]; then
 	cat << EOF
 -- Debug info:
-  Iter  = $ITERATIONS
-  Run   = $RUN
-  Class = $BENCH_CLASS
-  OTP   = $OTP_ROOT
+  Iter         = $ITERATIONS
+  Run          = $RUN
+  Class        = $BENCH_CLASS
+  OTP          = $OTP_ROOT
+  HiPE_FLAGS   = '$HIPE_FLAGS'
+  ErLLVM_FLAGS = '$ERLLVM_FLAGS'
 EOF
     fi
 
     ## Run $ITERATIONS times:
     for i in `seq 1 $ITERATIONS`; do
 	echo "Iter $i/$ITERATIONS:"
-	echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" > results/runtime.res
-	$RUN $OTP_ROOT $BENCH_CLASS
-	awk '{btl += $3 ;htl += $5} END {print "Runtime BTL:", btl/NR, "Runtime HTL:", htl/NR}' \
-	    results/runtime.res
+	echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
+	    > results/runtime.res
+	$RUN $OTP_ROOT $BENCH_CLASS $DEBUG
+	awk '{btl += $3 ;htl += $5} END {print "Runtime BTL:", btl/NR, \
+"Runtime HTL:", htl/NR}' results/runtime.res
 
 	## Copy results to another .res file:
 	NEW_RES=runtime-`date +"%y.%m.%d-%H:%M:%S"`.res
