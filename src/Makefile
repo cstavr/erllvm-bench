@@ -1,5 +1,5 @@
 #DIRS = $(wildcard */)
-DIRS = orbit-int #shootout #XXX: Work with shootout for now!
+DIRS = orbit-int shootout #XXX: Work with shootout and orbit for now!
 
 .PHONY: all clean
 
