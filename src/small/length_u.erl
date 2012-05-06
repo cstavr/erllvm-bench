@@ -1,7 +1,7 @@
 %% file: "length_u.erl"
 
 -module(length_u).
--export([test/0,compile/1]).
+-export([main/0,compile/1]).
 
 len(L) -> len(0,L).
 
@@ -25,7 +25,7 @@ make_list(X,L) -> make_list(X-1,[0|L]).
 loop(0,_,R) -> R;
 loop(N,L,_) -> loop(N-1,L,len(L)).
 
-test() ->
+main() ->
     L = make_list(20000),
     T1 = run_benchmark:time_now(),
     _R = loop(50000,L,0),

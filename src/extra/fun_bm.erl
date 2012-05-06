@@ -1,12 +1,12 @@
 -module(fun_bm).
--export([test/0,make_fun/1,no_args/1,one_arg/1,two_args/1,
+-export([main/0,make_fun/1,no_args/1,one_arg/1,two_args/1,
          one_free/1,two_free/1]).
 
 -define(rep5(X), X, X, X, X, X).
 -define(rep10(X), ?rep5(X), ?rep5(X)).
 -define(rep20(X), ?rep10(X), ?rep10(X)).
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     run_benchmarks(),
     Time = run_benchmark:time_since(T1),

@@ -3,34 +3,31 @@
 %   contributed by Isaac Gouy (Erlang novice)
 
 -module(spectralnorm).
--export([main/1, test/0]).
+-export([main/1]).
+-export([small/0,medium/0,big/0]).
 
-%% Small, medium, big
--define(small, 500).
--define(medium, 3000).
--define(big, 5500).
+small() -> 100.
+medium() -> 600.
+big() -> 1200.
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    main([integer_to_list(?medium)]),
-    run_benchmark:time_since(T1).
+
 
 main([Arg]) ->
     N = list_to_integer(Arg),
     {U,V} = powerMethod(N,10, array(1.0,N,[]), array(0.0,N,[]) ),
-    loop(N,U,V,0.0,0.0).
-    %%erlang:halt(0).
+    io:format("~.9f\n",[ loop(N,U,V,0.0,0.0) ]),
+    erlang:exit(ok).
 
 % eigenvalue of V
 loop(0,_,_,VBV,VV) -> math:sqrt(VBV/VV);
-loop(I,U,V,VBV,VV) ->
+loop(I,U,V,VBV,VV) -> 
    VI = element(I,V),
    loop(I-1,U,V, VBV + element(I,U)*VI, VV + VI*VI).
 
 % 2I steps of the power method
 powerMethod(_,0,A,B) -> {A,B};
-powerMethod(N,I,A,B) ->
-   V = atav(N,A,B),
+powerMethod(N,I,A,B) -> 
+   V = atav(N,A,B), 
    U = atav(N,V,A),
    powerMethod(N,I-1,U,V).
 
@@ -41,16 +38,16 @@ a(II,JJ) ->
 
 % multiply vector v by matrix A
 av(_,0,_,AV) -> AV;
-av(N,I,V,AV) ->
+av(N,I,V,AV) -> 
    av(N,I-1,V, setelement(I,AV, avloop(N,I,V,0.0) )).
 
 avloop(0,_,_,X) -> X;
-avloop(J,I,V,X) ->
+avloop(J,I,V,X) -> 
    avloop(J-1,I,V, X + a(I,J)*element(J,V) ).
 
 % multiply vector v by matrix A transposed
 atv(_,0,_,ATV) -> ATV;
-atv(N,I,V,ATV) ->
+atv(N,I,V,ATV) -> 
    atv(N,I-1,V, setelement(I,ATV, atvloop(N,I,V,0.0) )).
 
 atvloop(0,_,_,X) -> X;

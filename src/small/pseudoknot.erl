@@ -5,7 +5,7 @@
 %% formed. (Native code compilation has no such problems.)
 
 -module(pseudoknot).
--export([test/0,compile/1,native_compile/0]).
+-export([main/0,compile/1,native_compile/0]).
 
 append([H|T], Z) ->
   [H|append(T, Z)];
@@ -3300,7 +3300,7 @@ p_apply(stacked5_, A1, A2, A3, A4) -> stacked5_(A1, A2, A3, A4).
 loop(0,R) -> R;
 loop(N,_) -> loop(N-1,most_distant_atom(pseudoknot())).
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     _R = loop(100,0),
     Time = run_benchmark:time_since(T1),

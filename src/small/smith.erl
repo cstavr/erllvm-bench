@@ -1,7 +1,7 @@
 %% file: "smith.erl"
 
 -module(smith).
--export([test/0]).
+-export([main/0]).
 
 -compile({no_auto_import,[max/2]}).
 
@@ -83,7 +83,7 @@ match_sequences0([],_,MaxResult) -> MaxResult.
 loop(0,_Tops,_Side,R) -> R;
 loop(N,Tops,Side,_R) -> loop(N-1,Tops,Side,match_sequences(Tops,Side)).
 
-test() ->
+main() ->
     Tops = generate_sequences(200,64,1),
     Side = generate_sequence(64,0),
     T1 = run_benchmark:time_now(),

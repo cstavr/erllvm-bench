@@ -1,7 +1,7 @@
 % file: "stable.erl"
 
 -module(stable).
--export([test/0,compile/1,man/2,woman/2]).
+-export([main/0,compile/1,man/2,woman/2]).
 
 man(God,Id) ->
   receive
@@ -98,7 +98,7 @@ stable(N) ->
 loop(0,R) -> R;
 loop(N,_) -> loop(N-1,stable(10)).
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     _R = loop(12000,0),
     Time = run_benchmark:time_since(T1),

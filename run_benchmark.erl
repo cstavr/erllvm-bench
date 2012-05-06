@@ -33,7 +33,20 @@ compile(File, erllvm) ->
 run_bench(File) ->
   Myself = self(),
   Opts = [], %[{min_heap_size, 100000000}],
-  spawn_opt(fun () -> Myself ! File:test() end, Opts),
+  spawn_opt(fun () ->
+        % Supress IO
+        {ok, F} = file:open("result_file", [write]),
+        group_leader(F, self()),
+        T1 = run_benchmark:time_now(),
+        try
+          File:main([integer_to_list(File:medium())])
+        catch
+          exit:ok -> ok;
+          _:_ -> Myself ! -1
+        end,
+        Myself ! run_benchmark:time_since(T1),
+        file:close(F)
+        end, Opts),
   receive
     Result -> Result
   end.

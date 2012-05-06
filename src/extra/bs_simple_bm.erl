@@ -1,7 +1,7 @@
 -module(bs_simple_bm).
--export([test/0,lists/1,bs/1,bs_bif/1]).
+-export([main/0,lists/1,bs/1,bs_bif/1]).
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     run_benchmarks(),
     Time = run_benchmark:time_since(T1),

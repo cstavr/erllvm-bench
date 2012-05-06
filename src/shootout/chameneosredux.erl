@@ -11,19 +11,14 @@
 %% and replies with the number of Meetings for the broker to sum.
 
 -module(chameneosredux).
--export([main/1, test/0]).
+-export([main/1]).
 
 -import(lists, [foreach/2]).
+-export([small/0,medium/0,big/0]).
 
-%% Small, medium, big
--define(small, 60000).
--define(medium, 600000).
--define(big, 6000000).
-
-test() ->
-    T1 = run_benchmark:time_now(),
-    main([integer_to_list(?medium)]),
-    run_benchmark:time_since(T1).
+small() -> 160000.
+medium() -> 5000000.
+big() -> 120000000.
 
 spell(0) -> " zero";
 spell(N) -> spell(N, []).
@@ -41,34 +36,34 @@ complement(yellow, blue) -> red;
 complement(yellow, red) -> blue.
 
 
-show_complements(Dev) ->
-    [ io:fwrite(Dev, "~p + ~p -> ~p~n", [A, B, complement(A, B)]) ||
+show_complements() ->
+    [ io:fwrite("~p + ~p -> ~p~n", [A, B, complement(A, B)]) ||
         A <- [blue, red, yellow],
         B <- [blue, red, yellow]].
 
 
-print_header(Dev, L) ->
-    io:fwrite(Dev, "~n", []),
-    foreach(fun(C) -> io:fwrite(Dev, " ~p", [C]) end, L),
-    io:fwrite(Dev, "~n", []).
+print_header(L) ->
+    io:fwrite("~n"),
+    foreach(fun(C) -> io:fwrite(" ~p", [C]) end, L),
+    io:fwrite("~n").
 
 
-run(Dev, L, N) ->
-    print_header(Dev, L),
+run(L, N) ->
+    print_header(L),
     Broker = self(),
-    foreach(fun(Color) -> spawn(fun() -> chameneos(Dev, Broker, Color, 0, 0) end) end, L),
+    foreach(fun(Color) -> spawn(fun() -> chameneos(Broker, Color, 0, 0) end) end, L),
     broker(N),
-    cleanup(Dev, length(L), 0).
+    cleanup(length(L), 0).
 
 
-chameneos(Dev, Broker, Color, Meetings, MetSelf) ->
+chameneos(Broker, Color, Meetings, MetSelf) ->
     Broker ! { self(), Color },
     receive
         {OPid, OColor} ->
-            chameneos(Dev, Broker, complement(Color, OColor), Meetings+1,
+            chameneos(Broker, complement(Color, OColor), Meetings+1,
                       if OPid == self() -> MetSelf+1; true -> MetSelf end);
         stop ->
-            io:fwrite(Dev, "~w~s\n", [Meetings, spell(MetSelf)]),
+            io:fwrite("~w~s\n", [Meetings, spell(MetSelf)]),
             Broker ! Meetings
     end.
 
@@ -85,22 +80,22 @@ broker(N) ->
             broker(N-1)
     end.
 
-cleanup(Dev, 0, M) -> io:fwrite(Dev, "~s~n", [spell(M)]);
-cleanup(Dev, N, M) ->
+cleanup(0, M) -> io:fwrite("~s~n", [spell(M)]);
+cleanup(N, M) ->
     receive
         {Pid, _Color} ->
             Pid ! stop,
-            cleanup(Dev, N, M);
+            cleanup(N, M);
         Meetings ->
-            cleanup(Dev, N-1, M+Meetings)
+            cleanup(N-1, M+Meetings)
     end.
 
 
 main([Arg]) ->
     N = list_to_integer(Arg),
-    {ok, Dev} = file:open("/dev/null", [write]),
-    show_complements(Dev),
-    run(Dev, [blue, red, yellow], N),
-    run(Dev, [blue, red, yellow, red, yellow, blue, red, yellow, red, blue], N),
-    io:fwrite(Dev, "~n", []).
-    %%halt(0).
+    show_complements(),
+    run([blue, red, yellow], N),
+    run([blue, red, yellow, red, yellow, blue, red, yellow, red, blue], N),
+    io:fwrite("~n"),
+    exit(ok).
+

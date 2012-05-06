@@ -1,7 +1,7 @@
 %% file: "ring.erl"
 
 -module(ring).
--export([test/0,compile/1,test/3,foo/0,process/1]).
+-export([main/0,compile/1,test/3,foo/0,process/1]).
 -compile(export_all).
 
 process(Main) ->
@@ -37,7 +37,7 @@ ring(Nbprocs,Hops) ->
 loop(0,R,_Procs,_Msgs) -> R;
 loop(N,_R,Procs, Msgs) -> loop(N-1,ring(Procs,Msgs),Procs,Msgs).
 
-test() ->
+main() ->
   time(600,100000).
 
 time(Procs, Msgs) ->

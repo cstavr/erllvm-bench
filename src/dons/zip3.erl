@@ -2,7 +2,7 @@
 %% by donsbot
 
 -module(zip3).
--export([test/0, compile/1, zip3/1]).
+-export([main/0, compile/1, zip3/1]).
 
 zip3(N) ->
     lists:sum(lists:zipwith3(fun (X, Y, Z) -> X * Y * Z end,
@@ -13,7 +13,7 @@ zip3(N) ->
 loop(0,R) -> R;
 loop(N,_) -> loop(N-1,zip3(10000000)).
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     _R = loop(1,0),
     Time = run_benchmark:time_since(T1),

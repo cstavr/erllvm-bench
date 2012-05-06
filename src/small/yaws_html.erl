@@ -6,9 +6,9 @@
 %%% Created : 20 Nov 2003 by Luke Gorrie <luke@bluetail.com>
 %%%-------------------------------------------------------------------
 -module(yaws_html).
--export([test/0, compile/1]).
+-export([main/0, compile/1]).
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     ok = ehtml_benchmark(1000000),
     Time = run_benchmark:time_since(T1),

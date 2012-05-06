@@ -2,11 +2,11 @@
 %%% from bjorn@erix.ericsson.se
 
 -module(float_bm).
--export([test/0, compile/1]).
+-export([main/0, compile/1]).
 
 -compile([no_copt]).	%% shut off warnings about unused term constructions
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     run_benchmarks(),
     Time = run_benchmark:time_since(T1),

@@ -1,7 +1,7 @@
 -module(freq_bm).
--export([test/0,vector/1,tuple/1,ets/1]).
+-export([main/0,vector/1,tuple/1,ets/1]).
 
-test() ->
+main() ->
   T1 = run_benchmark:time_now(),
   Iter=500,
   tuple(Iter),

@@ -11,7 +11,7 @@
 -module(decode).
 -author('jb@erix.ericsson.se').
 
--export([test/0, compile/1,
+-export([main/0, compile/1,
 	 decode_ie_heads_setup/1,
 	 run_dummy/2,
 	 run_orig/2]).
@@ -23,7 +23,7 @@
 -endif.
 
 
-test() ->
+main() ->
   _FrameList = [89,128,0,8,132,0,26,133,133,0,38,148,94,
 	        128,0,2,129,128,92,128,0,2,0,0,112,128,0,
 	        10,194,69,0,0,0,0,0,18,52,95],

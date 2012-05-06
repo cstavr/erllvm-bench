@@ -5,17 +5,14 @@
 
 -module(pidigits_par).
 
--export([main/1, test/0]).
+-export([main/1]).
+-export([small/0,medium/0,big/0]).
 
 %% Small, medium, big
--define(small, 2000).
--define(medium, 6000).
--define(big, 10000).
+small() -> 10.
+medium() -> 6000.
+big() -> 10000.
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    main(?medium),
-    run_benchmark:time_since(T1).
 
 main(N) when is_integer(N) ->
     Pid = spawn_link(fun() -> io_worker() end),

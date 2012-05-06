@@ -6,9 +6,9 @@
 %%
 
 -module(huff).
--export([test/0,compile/1]).
+-export([main/0,compile/1]).
 
-test() ->
+main() ->
     garbage_collect(),
     statistics(runtime),
     Data = get_data("uudecode.doc"),

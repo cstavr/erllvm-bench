@@ -1,7 +1,7 @@
 -module(life).
--export([test/0,compile/1,cell/0]). 
+-export([main/0,compile/1,cell/0]). 
 
-test() ->
+main() ->
     T1 = run_benchmark:time_now(),
     _R = 0 = bench(30,30,10000),
     Time = run_benchmark:time_since(T1),

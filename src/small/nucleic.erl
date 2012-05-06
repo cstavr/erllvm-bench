@@ -18,7 +18,7 @@
 %%    "???" published in the "Journal of Functional Programming".
 
 -module(nucleic).
--export([test/0]).
+-export([main/0]).
 
 -compile({no_auto_import,[max/2]}).
 
@@ -3258,7 +3258,7 @@ max([],M) -> M.
 %% check() ->
 %%     length(pseudoknot()).
 
-test() -> 
+main() -> 
     T1 = run_benchmark:time_now(),
     _Res = most_distant_atom(pseudoknot()),
     Time = run_benchmark:time_since(T1),
