@@ -230,8 +230,8 @@ EOF
 	echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
 	    > results/runtime.res
 	$RUN $OTP_ROOT $BENCH_CLASS $DEBUG
-	awk '{btl += $3 ;htl += $5} END {print "Runtime BTL:", btl/NR, \
-"Runtime HTL:", htl/NR}' results/runtime.res
+	awk '{btl += $3; htl += $5} END {print "Runtime BTL:", btl/(NR-1), \
+"Runtime HTL:", htl/(NR-1)}' results/runtime.res
 
 	## Copy results to another .res file:
 	NEW_RES=runtime-`date +"%y.%m.%d-%H:%M:%S"`.res
