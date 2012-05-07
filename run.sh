@@ -82,7 +82,7 @@ run_benchmark ()
     fi
     erlc -o ebin/$CLASS/ ebin/$CLASS/*.beam
     BT_tmp=`$OTP_ROOT_BEAM/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
-	-s run_benchmark run $BENCH beam -s erlang halt`
+	-s run_benchmark run $BENCH -s erlang halt`
     BT=`calc $BT_tmp`
 
     ## Vanilla HiPE
@@ -94,7 +94,7 @@ run_benchmark ()
 	echo "Running vanilla HiPE..."
     fi
     HT_tmp=`$OTP_ROOT_HIPE/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
-	-s run_benchmark run $BENCH hipe -s erlang halt`
+	-s run_benchmark run $BENCH -s erlang halt`
     HT=`calc $HT_tmp`
 
     ## ErLLVM
@@ -106,7 +106,7 @@ run_benchmark ()
 	echo "Running ErLLVM..."
     fi
     LT_tmp=`$OTP_ROOT_ERLLVM/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
-	-s run_benchmark run $BENCH erllvm -s erlang halt`
+	-s run_benchmark run $BENCH -s erlang halt`
     LT=`calc $LT_tmp`
     ## Print results to "resuls/runtime.res":
     printf "%-16s & %6.3f & %6.3f & %6.2f & %6.2f & %6.2f \\\\\\ \n" \

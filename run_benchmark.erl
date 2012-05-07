@@ -3,10 +3,10 @@
 -export([run/1]).
 -export([time_now/0, time_since/1]).
 
-run([M, Mode]) ->
-  bench_file(M, Mode).
+run([M]) ->
+  bench_file(M).
 
-bench_file(File, Mode) ->
+bench_file(File) ->
   case File of
     prettypr ->
       case get(prettypr_data) of
