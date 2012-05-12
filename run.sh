@@ -80,7 +80,7 @@ run_benchmark ()
     if [ $DEBUG -eq 1 ]; then
 	echo "Running BEAM..."
     fi
-    erlc -o ebin/$CLASS/ ebin/$CLASS/*.beam
+    $OTP_ROOT_BEAM/bin/erlc -o ebin/$CLASS/ ebin/$CLASS/*.beam
     BT_tmp=`$OTP_ROOT_BEAM/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
 	-s run_benchmark run $BENCH -s erlang halt`
     BT=`calc $BT_tmp`
@@ -89,7 +89,7 @@ run_benchmark ()
     if [ $DEBUG -eq 1 ]; then
 	echo "Compiling with vanilla HiPE..."
     fi
-    erlc +native +"'$HIPE_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
+    $OTP_ROOT_HIPE/bin/erlc +native +"'$HIPE_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
     if [ $DEBUG -eq 1 ]; then
 	echo "Running vanilla HiPE..."
     fi
@@ -101,7 +101,7 @@ run_benchmark ()
     if [ $DEBUG -eq 1 ]; then
 	echo "Compiling with ErLLVM..."
     fi
-    erlc +native +"'$ERLLVM_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
+    $OTP_ROOT_ERLLVM/bin/erlc +native +"'$ERLLVM_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
     if [ $DEBUG -eq 1 ]; then
 	echo "Running ErLLVM..."
     fi
