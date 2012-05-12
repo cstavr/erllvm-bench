@@ -16,8 +16,8 @@ medium() -> 1000000.
 big() -> 10000000.
 
 main() -> main(["1"]).
-main([Arg]) ->
-   N = list_to_integer(Arg),
+main(Arg) ->
+   N = Arg,
    H = ets:new(i_am_a_carrot, [set]),
    doinserts(0, N + 1, H),
    Count = dolookups(N + 1, 0, H),

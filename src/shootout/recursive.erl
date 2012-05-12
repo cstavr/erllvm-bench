@@ -11,8 +11,8 @@ medium() -> 10.
 big() -> 14.
 
 
-main([Arg]) ->
-    N = list_to_integer(Arg),
+main(Arg) ->
+    N = Arg,
     io:fwrite("Ack(3,~w): ~w\n", [N, ack(3, N)]),
     io:fwrite("Fib(~.1f): ~.1f\n", [27.0+float(N), fib(27.0+float(N))]),
     M=N-1, io:fwrite("Tak(~w,~w,~w): ~w\n", [M*3,M*2,M, tak(M*3,M*2,M)]),

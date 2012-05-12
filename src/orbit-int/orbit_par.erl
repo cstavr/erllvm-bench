@@ -1,15 +1,12 @@
 -module(orbit_par).
 
--export([test/0]).
+-export([main/1]).
+-export([small/0,medium/0,big/0]).
 
--define(small,  {fun bench:g12/1,    100000}).
--define(medium, {fun bench:g1234/1,  100000}).
--define(big,    {fun bench:g2345/1, 1000000}).
+small() ->  {fun bench:g12/1,    100000}.
+medium() -> {fun bench:g1234/1,  100000}.
+big() ->    {fun bench:g2345/1, 1000000}.
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    main(?medium),
-    run_benchmark:time_since(T1).
 
 main({Gen, N}) ->
     bench:par(Gen, N, erlang:system_info(schedulers)).

@@ -15,8 +15,8 @@ big() -> 20.
 -define(SIZE, 300).
 
 main() -> main(["1"]).
-main([Arg]) ->
-    N = list_to_integer(Arg),
+main(Arg) ->
+    N = Arg,
     M1 = mkmatrix(?SIZE, ?SIZE),
     M2 = mkmatrix(?SIZE, ?SIZE),
     mmult_n(N, M1, M2),

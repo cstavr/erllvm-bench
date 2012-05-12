@@ -56,8 +56,8 @@ do_print(C, []) -> io:fwrite("~*.1c:~p~n", [10 - C rem 10, $\t, C]);
 do_print(C, [H|T]) -> io:fwrite("~p", [H]), do_print(C, T).
 
 
-main([Arg]) ->
-    N = list_to_integer(Arg),
+main(Arg) ->
+    N = Arg,
     case N of
       X when X>1 -> stream(X);
       _ -> ok

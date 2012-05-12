@@ -10,8 +10,8 @@ small() -> 38.
 medium() -> 42.
 big() -> 46.
 
-main([Arg]) ->
-    Num = list_to_integer(Arg),
+main(Arg) ->
+    Num = Arg,
     io:fwrite("~w\n", [fib(Num)]),
     exit(ok).
 

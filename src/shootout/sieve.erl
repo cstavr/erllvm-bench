@@ -20,8 +20,8 @@ big() -> 10000.
 % a larger heap improves execution time by ~20%.
 
 main() -> main(["1"]).
-main([Arg]) ->
-   Num = list_to_integer(Arg),
+main(Arg) ->
+   Num = Arg,
    spawn_opt(sieve, test, [self(), Num], [{min_heap_size, 50000}]),
    receive Num_primes -> io:fwrite("Count: ~w\n", [Num_primes]) end,
    exit(ok).

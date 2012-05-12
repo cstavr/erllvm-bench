@@ -17,8 +17,7 @@ big() -> 10000.
 main(N) when is_integer(N) ->
     Pid = spawn_link(fun() -> io_worker() end),
     register(io_worker, Pid),
-    stream({1, 0, 1}, 1, 0, N);
-main([N]) -> main(list_to_integer(N)).
+    stream({1, 0, 1}, 1, 0, N).
 
 comp({Q, R, T}, {U, V, X}) -> {Q*U, Q*V + R*X, T*X}.
 

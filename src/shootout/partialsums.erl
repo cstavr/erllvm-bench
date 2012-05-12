@@ -13,8 +13,8 @@ medium() -> 1000000.
 big() -> 200000000.
 
 
-main([Arg]) ->
-   N = list_to_integer(Arg),
+main(Arg) ->
+   N = Arg,
    Names = ["(2/3)^k", "k^-0.5", "1/k(k+1)", "Flint Hills", "Cookson Hills",
             "Harmonic", "Riemann Zeta", "Alternating Harmonic", "Gregory"],
    Sums = loop(1, N, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),

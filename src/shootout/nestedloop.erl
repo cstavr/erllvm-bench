@@ -11,8 +11,8 @@ small() -> 10.
 medium() -> 30.
 big() -> 35.
 
-main([Arg]) ->
-   Num = list_to_integer(Arg),
+main(Arg) ->
+   Num = Arg,
    io:fwrite("~w\n", [loopA(Num, Num, 0)]),
    exit(ok).
 

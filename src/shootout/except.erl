@@ -39,8 +39,8 @@ some_fun(N) ->
    some_fun(N - 1).
     
 main() -> main(["1"]).
-main([Arg]) ->
-   Num = list_to_integer(Arg),
+main(Arg) ->
+   Num = Arg,
    put(hi_count, 0),
    put(lo_count, 0),
    some_fun(Num),

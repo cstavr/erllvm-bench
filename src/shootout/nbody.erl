@@ -18,11 +18,6 @@ small() -> 10.
 medium() -> 5000000.
 big() -> 50000000.
 
-main([Arg]) ->
-    N = list_to_integer(Arg),
-    main(N),
-    exit(ok);
-
 main(N) ->
   Bodies = offset_momentum(bodies()),
   energy(Bodies),

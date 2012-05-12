@@ -16,9 +16,10 @@ big() -> 400000.
 -define(SR, -1.5).
 -define(SI, -1).
 
-main([Arg]) ->
-    N = list_to_integer(Arg),
-    io:put_chars(["P4\n", Arg, " ", Arg, "\n"]),
+main(Arg) ->
+    N = Arg,
+    M = integer_to_list(Arg),
+    io:put_chars(["P4\n", M, " ", M, "\n"]),
     
     %% Spawn one process per row
     Row = fun(Y)-> spawn(fun()-> row(0, ?SI+Y*2/N, N, 0, [], 7) end) end,

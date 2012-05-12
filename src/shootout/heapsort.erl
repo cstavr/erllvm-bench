@@ -92,8 +92,8 @@ gen_random(Seed) ->
    {S, S/IM}.
 
 main() -> main(["1"]).
-main([Arg]) ->
-   N = list_to_integer(Arg),
+main(Arg) ->
+   N = Arg,
    clear_ets_array(N),
    random_heap(0, 42, N),
    heapsort(N-1),

@@ -34,8 +34,8 @@ medium() -> 500000.
 big() -> 20000000.
 
 main() -> main(["1"]).
-main([Arg]) ->
-   Num = list_to_integer(Arg),
+main(Arg) ->
+   Num = Arg,
    io:fwrite("~w\n", [length(make_string("hello\n", Num))]),
    exit(ok).
 

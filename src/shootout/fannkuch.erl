@@ -12,13 +12,13 @@ small() -> 6.
 medium() -> 10.
 big() -> 14.
 
-main([Arg]) ->
-    N = list_to_integer(Arg),
-    F = main(N),
+main(Arg) ->
+    N = Arg,
+    F = run(N),
     io:fwrite("Pfannkuchen(~p) = ~p~n", [N, F]),
-    erlang:exit(ok);
+    erlang:exit(ok).
 
-main(N) when N > 0 ->
+run(N) when N > 0 ->
     L = lists:seq(1,N),
     put(pr,30),
     put(maxflip,0),

@@ -12,9 +12,6 @@ small() -> 10.
 medium() -> 11.
 big() -> 12.
 
-main([Arg]) ->
-    main(list_to_integer(Arg)),
-    exit(ok);
 main(N) when N > 0 ->
     {MaxFlips, Checksum} = 
 	case N of

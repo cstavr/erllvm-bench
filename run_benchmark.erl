@@ -27,7 +27,7 @@ run_bench(File) ->
   ModExports = element(2, lists:keyfind(exports, 1, File:module_info())),
   Args =
     case lists:member({Size,0}, ModExports) of
-      true -> [integer_to_list(File:medium())];
+      true -> File:medium();
       false -> []
     end,
   spawn_opt(fun () ->

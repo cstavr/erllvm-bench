@@ -15,8 +15,8 @@ small() -> 15.
 medium() -> 19.
 big() -> 22.
 
-main([Arg]) ->
-   N = list_to_integer(Arg),
+main(Arg) ->
+   N = Arg,
    Max = lists:max([?Min+2,N]),
 
    Stretch = Max + 1,

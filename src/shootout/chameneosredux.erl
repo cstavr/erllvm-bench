@@ -91,8 +91,8 @@ cleanup(N, M) ->
     end.
 
 
-main([Arg]) ->
-    N = list_to_integer(Arg),
+main(Arg) ->
+    N = Arg,
     show_complements(),
     run([blue, red, yellow], N),
     run([blue, red, yellow, red, yellow, blue, red, yellow, red, blue], N),

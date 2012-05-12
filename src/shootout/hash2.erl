@@ -16,8 +16,8 @@ big() -> 8000.
 
 
 main() -> main(["1"]).
-main([Arg]) ->
-   N = list_to_integer(Arg),
+main(Arg) ->
+   N = Arg,
    H1 = ets:new(one, [set]),
    H2 = ets:new(two, [set]),
    doinserts1(0, H1),

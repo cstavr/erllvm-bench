@@ -16,8 +16,8 @@ big() -> 20.
 -define(SIZE, 100000).
 
 main() -> main(["1"]).
-main([Arg]) ->
-   N = list_to_integer(Arg),
+main(Arg) ->
+   N = Arg,
    test_lists_n(N),
    exit(ok).
 

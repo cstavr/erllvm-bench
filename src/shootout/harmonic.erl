@@ -12,8 +12,8 @@ medium() -> 160000000.
 big() -> 200000000000.
 
 
-main([Arg]) ->
-   Num = list_to_integer(Arg),
+main(Arg) ->
+   Num = Arg,
    io:fwrite("~.9f~n", [harmonic(Num,0.0)]),
    erlang:exit(ok).
 

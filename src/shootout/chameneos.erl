@@ -71,8 +71,8 @@ meetingCount(Creatures,Meetings) ->
    end.   
 
 
-main([Arg]) ->
-    N = list_to_integer(Arg), 
+main(Arg) ->
+    N = Arg, 
     MeetingPlace = spawn(chameneos, meetingPlace, [N,first,first]),
     Creatures = lists:map(
       fun(C) -> spawn(chameneos, creature, [0,C,MeetingPlace,self()]) end,
