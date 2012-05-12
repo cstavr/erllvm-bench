@@ -41,7 +41,7 @@
 
 -export([above/2, beside/2, best/3, break/1, empty/0, floating/1,
 	 floating/3, follow/2, follow/3, format/1, format/2,
-	 format/3, nest/2, par/1, par/2, sep/1, text/1, test/0]).
+	 format/3, nest/2, par/1, par/2, sep/1, text/1, main/1]).
 
 -record(text, {s}).
 -record(nest, {n, d}).
@@ -49,7 +49,7 @@
 -record(above, {d1, d2}).
 -record(sep, {ds, i = 0, p = false}).
 
-test() ->
+main([]) ->
    case get(prettypr_data) of
        undefined ->
            {ok, _Dev, Fullname} =
@@ -59,10 +59,7 @@ test() ->
            X;
        X -> X
    end,
-   T1 = run_benchmark:time_now(),
-   loop(42),
-   Time = run_benchmark:time_since(T1),
-   Time.
+   loop(42).
 
 loop(0) ->
    ok;
@@ -278,7 +275,7 @@ follow(D1, D2, N) ->
 %%	zero.
 %%
 %%	Note: floating documents seem to be working well, but have
-%%	not been thoroughly tested yet. It is possible to nest
+%%	not been thoroughly mained yet. It is possible to nest
 %%	"floating" operators (even with different priorities), but
 %%	the effects may be difficult to predict. In any case, note
 %%	that the way the algorithm reorders floating documents

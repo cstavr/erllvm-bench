@@ -6,13 +6,10 @@
 %%% Created : 20 Nov 2003 by Luke Gorrie <luke@bluetail.com>
 %%%-------------------------------------------------------------------
 -module(yaws_html).
--export([test/0, compile/1]).
+-export([main/1, compile/1]).
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    ok = ehtml_benchmark(1000000),
-    Time = run_benchmark:time_since(T1),
-    Time.
+main([]) ->
+    ehtml_benchmark(1000000).
 
 %%-export([normal/1,expander/1]).
 %%ehtml_benchmark(N) ->

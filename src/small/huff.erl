@@ -6,19 +6,17 @@
 %%
 
 -module(huff).
--export([test/0,compile/1]).
+-export([main/1,compile/1]).
 
-test() ->
+main([]) ->
     garbage_collect(),
     statistics(runtime),
     Data = get_data("uudecode.doc"),
     {_,_LoadTime} = statistics(runtime),
     _OrgLength = length(Data),
-    T1 = run_benchmark:time_now(),
+
     R = loop(60,Data,0),
-    Time = run_benchmark:time_since(T1),
-    _ = length(R),
-    Time.
+    length(R).
 
 loop(0,_Data,R) -> R;
 loop(N,Data,_R) -> loop(N-1,Data,pack_unpack(Data)).

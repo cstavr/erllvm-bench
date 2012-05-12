@@ -1,12 +1,11 @@
 -module(freq_bm).
--export([test/0,vector/1,tuple/1,ets/1]).
+-export([main/1,vector/1,tuple/1,ets/1]).
 
-test() ->
-  T1 = run_benchmark:time_now(),
+main([]) ->
   Iter=500,
   tuple(Iter),
-  ets(Iter),
-  run_benchmark:time_since(T1).
+  ets(Iter).
+
 
 tuple(Iter) ->
     tuple(Iter, random_list()).

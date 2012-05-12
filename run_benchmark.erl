@@ -23,7 +23,28 @@ bench_file(File) ->
 run_bench(File) ->
   Myself = self(),
   Opts = [], %[{min_heap_size, 100000000}],
-  spawn_opt(fun () -> Myself ! File:test() end, Opts),
+  Size = medium,
+  ModExports = element(2, lists:keyfind(exports, 1, File:module_info())),
+  Args =
+    case lists:member({Size,0}, ModExports) of
+      true -> [integer_to_list(File:medium())];
+      false -> []
+    end,
+  spawn_opt(fun () ->
+        % Supress IO
+        {ok, F} = file:open("result_file", [write]),
+        group_leader(F, self()),
+        T1 = run_benchmark:time_now(),
+        Time = try
+          File:main(Args),
+          run_benchmark:time_since(T1)
+        catch
+          exit:ok -> run_benchmark:time_since(T1);
+          _:_ -> -1
+        end,
+        Myself ! Time,
+        file:close(F)
+        end, Opts),
   receive
     Result -> Result
   end.

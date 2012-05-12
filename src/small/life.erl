@@ -1,12 +1,8 @@
 -module(life).
--export([test/0,compile/1,cell/0]). 
+-export([main/1,compile/1,cell/0]). 
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    _R = 0 = bench(30,30,10000),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
+main([]) ->
+    bench(30,30,10000).
 
 compile(Flags) ->
     hipe:c(?MODULE,Flags).

@@ -2,27 +2,21 @@
 %%% from bjorn@erix.ericsson.se
 
 -module(float_bm).
--export([test/0, compile/1]).
+-export([main/1, compile/1]).
 
 -compile([no_copt]).	%% shut off warnings about unused term constructions
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    run_benchmarks(),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
-
-
-compile(Options) ->
-    hipe:c(?MODULE, Options).
-
-run_benchmarks() ->
+main([]) ->
     Iter = 5000000,
     float_add(Iter),
     float_sub(Iter),
     float_mul(Iter),
     float_div(Iter).
+
+
+compile(Options) ->
+    hipe:c(?MODULE, Options).
+
 
 %% benchmarks() ->
 %%    {200000,[float_add,float_sub,float_mul,float_div]}.

@@ -1,12 +1,8 @@
 -module(bin_to_term_bm).
--export([test/0,t_binary_to_term/1]).
+-export([main/1,t_binary_to_term/1]).
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    t_binary_to_term(1000000),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
+main([]) ->
+    t_binary_to_term(1000000).
 
 
 t_binary_to_term(Iter) ->

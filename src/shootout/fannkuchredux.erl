@@ -4,47 +4,42 @@
 %% Contributed by : Alkis Gotovos and Maria Christakis, 13 Nov 2010
 
 -module(fannkuchredux).
--export([main/1,test/0]).
 
-%% Small, medium, big
--define(small, 10).
--define(medium, 11).
--define(big, 12).
+-export([main/1]).
+-export([small/0,medium/0,big/0]).
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    main([integer_to_list(?medium)]),
-    run_benchmark:time_since(T1).
+small() -> 10.
+medium() -> 11.
+big() -> 12.
 
 main([Arg]) ->
-    {ok, Dev} = file:open("/dev/null", [write]),
-    main(Dev, list_to_integer(Arg)).
-    %%halt(0);
-main(Dev, N) when N > 0 ->
-    {MaxFlips, Checksum} =
-        case N of
-            1 -> {0, 0};
-            _Other ->
-                Chunk = fact(N - 1),
-                divide(0, N, lists:seq(1, N), Chunk),
-                join(N, 0, 0)
-        end,
-    io:fwrite(Dev, "~p~nPfannkuchen(~p) = ~p~n", [Checksum, N, MaxFlips]),
+    main(list_to_integer(Arg)),
+    exit(ok);
+main(N) when N > 0 ->
+    {MaxFlips, Checksum} = 
+	case N of
+	    1 -> {0, 0};
+	    _Other ->
+		Chunk = fact(N - 1),
+		divide(0, N, lists:seq(1, N), Chunk),
+		join(N, 0, 0)
+	end,
+    io:format("~p~nPfannkuchen(~p) = ~p~n", [Checksum, N, MaxFlips]),
     {MaxFlips, Checksum}.
 
 divide(N, N, _L, _C) -> ok;
 divide(N, MaxN, [H|T] = List, Chunk) ->
     Self = self(),
     Fun = fun() ->
-              work(N, List, N * Chunk, (N + 1) * Chunk, MaxN, 0, 0, Self)
-          end,
+	      work(N, List, N * Chunk, (N + 1) * Chunk, MaxN, 0, 0, Self)
+	  end,
     spawn(Fun),
     divide(N + 1, MaxN, T ++ [H], Chunk).
 
 join(0, MaxFlips, Checksum) -> {MaxFlips, Checksum};
 join(N, MaxFlips, Checksum) ->
     receive
-        {Flips, Sum} -> join(N - 1, max(MaxFlips, Flips), Checksum + Sum)
+	{Flips, Sum} -> join(N - 1, max(MaxFlips, Flips), Checksum + Sum)
     end.
 
 work(_P, _L, Index, Index, _R, MaxFlips, Checksum, Target) ->
@@ -60,8 +55,8 @@ work(Proc, List, Index, MaxIndex, R, MaxFlips, Checksum, Target) ->
 next(Proc, List, R) ->
     NewList = next_aux(R, List),
     case put(R, get(R) - 1) of
-        1 -> next(Proc, NewList, R + 1);
-        _Other -> {NewList, R}
+	1 -> next(Proc, NewList, R + 1);
+	_Other -> {NewList, R}
     end.
 
 next_aux(1, [E1, E2|T]) -> [E2, E1|T];
@@ -69,15 +64,15 @@ next_aux(2, [E1, E2, E3|T]) -> [E2, E3, E1|T];
 next_aux(3, [E1, E2, E3, E4|T]) -> [E2, E3, E4, E1|T];
 next_aux(R, [H|T]) ->
     {Front, Back} = lists:split(R, T),
-    Front ++ [H] ++ Back.
+    Front ++ [H] ++ Back.    
 
 flip_sum(Index, List) ->
     Flips = flip(List, 0),
-    Sum =
-        case Index band 1 of
-            0 -> Flips;
-            1 -> -Flips
-        end,
+    Sum = 
+	case Index band 1 of
+	    0 -> Flips;
+	    1 -> -Flips
+	end,
     {Flips, Sum}.
 
 flip([1|_T], N) ->
@@ -108,7 +103,7 @@ flip([H|_T] = List, N) ->
     {First, Last} = lists:split(H, List),
     flip(lists:reverse(First) ++ Last, N + 1).
 
-reset(1) -> ok;
+reset(1) -> ok;    
 reset(N) -> put(N - 1, N), reset(N - 1).
 
 fact(1) -> 1;

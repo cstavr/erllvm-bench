@@ -1,7 +1,7 @@
 % file: "stable.erl"
 
 -module(stable).
--export([test/0,compile/1,man/2,woman/2]).
+-export([main/1,compile/1,man/2,woman/2]).
 
 man(God,Id) ->
   receive
@@ -98,12 +98,8 @@ stable(N) ->
 loop(0,R) -> R;
 loop(N,_) -> loop(N-1,stable(10)).
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    _R = loop(12000,0),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
+main([]) ->
+    loop(12000,0).
 
 compile(Flags) ->
     hipe:c(?MODULE,Flags).

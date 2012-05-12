@@ -5,7 +5,8 @@
 % minor optimizations by Ulf Wiger (2007-06-17)
 
 -module(nbody).
--export([main/1,test/0]).
+-export([main/1]).
+-export([small/0,medium/0,big/0]).
 
 -define(pi, 3.14159265358979323).
 -define(solar_mass, (4 * ?pi * ?pi)).
@@ -13,19 +14,14 @@
 -define(f(X), is_float(X)).
 
 %% Small, medium, big
--define(small, 500000).
--define(medium, 5000000).
--define(big, 50000000).
-
-test() ->
-    T1 = run_benchmark:time_now(),
-    main(?medium),
-    run_benchmark:time_since(T1).
+small() -> 10.
+medium() -> 5000000.
+big() -> 50000000.
 
 main([Arg]) ->
     N = list_to_integer(Arg),
     main(N),
-    erlang:halt(0);
+    exit(ok);
 
 main(N) ->
   Bodies = offset_momentum(bodies()),

@@ -11,7 +11,7 @@
 -module(decode).
 -author('jb@erix.ericsson.se').
 
--export([test/0, compile/1,
+-export([main/1, compile/1,
 	 decode_ie_heads_setup/1,
 	 run_dummy/2,
 	 run_orig/2]).
@@ -23,7 +23,7 @@
 -endif.
 
 
-test() ->
+main([]) ->
   _FrameList = [89,128,0,8,132,0,26,133,133,0,38,148,94,
 	        128,0,2,129,128,92,128,0,2,0,0,112,128,0,
 	        10,194,69,0,0,0,0,0,18,52,95],
@@ -47,11 +47,7 @@ test() ->
 			 list_to_binary([0]),list_to_binary([18]),
 			 list_to_binary([52]),list_to_binary([95])]),
   
-    T1 = run_benchmark:time_now(),
-    _R = loop(500000,0,Frame),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
+    loop(500000,0,Frame).
 
 compile(Flags) ->
     hipe:c(?MODULE, Flags).

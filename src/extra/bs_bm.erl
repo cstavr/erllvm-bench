@@ -1,14 +1,7 @@
 -module(bs_bm).
--export([test/0,lists/1,bs/1,partly_bs/1]).
+-export([main/1,lists/1,bs/1,partly_bs/1]).
 
-test() ->
-    T1 = run_benchmark:time_now(),
-    run_benchmarks(),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
-
-run_benchmarks() ->
+main([]) ->
     Iter = 50000,
     lists(Iter),
     bs(Iter),
