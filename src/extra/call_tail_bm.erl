@@ -1,19 +1,12 @@
 -module(call_tail_bm).
--export([main/0,local_tail_call/1,external_tail_call/1]).
+-export([main/1,local_tail_call/1,external_tail_call/1]).
 -export([foo/0]).
 
 -define(rep5(X), X, X, X, X, X).
 -define(rep10(X), ?rep5(X), ?rep5(X)).
 -define(rep20(X), ?rep10(X), ?rep10(X)).
 
-main() ->
-    T1 = run_benchmark:time_now(),
-    run_benchmarks(),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
-
-run_benchmarks() ->
+main([]) ->
     Iter = 2000000,
     local_tail_call(Iter),
     external_tail_call(Iter).

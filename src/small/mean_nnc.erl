@@ -1,5 +1,5 @@
 -module(mean_nnc).
--export([main/0, compile/1, mean/1]).
+-export([main/1, compile/1, mean/1]).
 
 mean(N) ->
   sum(duplicate(N, math:pi()))/N.
@@ -18,12 +18,8 @@ sum([X|Xs], Acc) -> sum(Xs, X+Acc).
 loop(0,R) -> R;
 loop(N,_) -> loop(N-1,mean(10000000)).
 
-main() ->
-    T1 = run_benchmark:time_now(),
-    _R = loop(1,0),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
+main([]) ->
+    loop(1,0).
 
 compile(Flags) ->
     hipe:c(?MODULE,Flags).

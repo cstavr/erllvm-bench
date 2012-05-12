@@ -1,7 +1,7 @@
 %% file: "ring.erl"
 
 -module(ring).
--export([main/0,compile/1,test/3,foo/0,process/1]).
+-export([main/1,compile/1,test/3,foo/0,process/1]).
 -compile(export_all).
 
 process(Main) ->
@@ -37,14 +37,11 @@ ring(Nbprocs,Hops) ->
 loop(0,R,_Procs,_Msgs) -> R;
 loop(N,_R,Procs, Msgs) -> loop(N-1,ring(Procs,Msgs),Procs,Msgs).
 
-main() ->
+main([]) ->
   time(600,100000).
 
 time(Procs, Msgs) ->
-  T1 = run_benchmark:time_now(),
-  _R = loop(50, 0, Procs, Msgs),
-  Time = run_benchmark:time_since(T1),
-  Time.
+  loop(50, 0, Procs, Msgs).
 
 compile(Flags) ->
   hipe:c(?MODULE,Flags).

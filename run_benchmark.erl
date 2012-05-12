@@ -33,18 +33,26 @@ compile(File, erllvm) ->
 run_bench(File) ->
   Myself = self(),
   Opts = [], %[{min_heap_size, 100000000}],
+  Size = medium,
+  ModExports = element(2, lists:keyfind(exports, 1, File:module_info())),
+  Args =
+    case lists:member({Size,0}, ModExports) of
+      true -> [integer_to_list(File:medium())];
+      false -> []
+    end,
   spawn_opt(fun () ->
         % Supress IO
         {ok, F} = file:open("result_file", [write]),
         group_leader(F, self()),
         T1 = run_benchmark:time_now(),
-        try
-          File:main([integer_to_list(File:medium())])
+        Time = try
+          File:main(Args),
+          run_benchmark:time_since(T1)
         catch
-          exit:ok -> ok;
-          _:_ -> Myself ! -1
+          exit:ok -> run_benchmark:time_since(T1);
+          _:_ -> -1
         end,
-        Myself ! run_benchmark:time_since(T1),
+        Myself ! Time,
         file:close(F)
         end, Opts),
   receive

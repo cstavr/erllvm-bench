@@ -1,7 +1,7 @@
 %% file: "tak.erl"
 
 -module(tak).
--export([main/0,compile/1,tak/3]).
+-export([main/1,compile/1,tak/3]).
 
 tak(X,Y,Z) ->
   if
@@ -14,12 +14,8 @@ tak(X,Y,Z) ->
 loop(0,R) -> R;
 loop(N,_) -> loop(N-1,tak(32,22,16)).
 
-main() ->
-    T1 = run_benchmark:time_now(),
-    _R = loop(1000,0),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
+main([]) ->
+    loop(1000,0).
 
 compile(Flags) ->
     hipe:c(?MODULE,Flags).

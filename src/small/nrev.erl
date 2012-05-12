@@ -1,7 +1,7 @@
 % file: "nrev.erl"
 
 -module(nrev).
--export([main/0,compile/1]).
+-export([main/1,compile/1]).
 
 nrev([H|T]) -> app(nrev(T),[H]);
 nrev([])    -> [].
@@ -16,11 +16,10 @@ iota(N,L) -> iota(N-1,[N|L]).
 loop(0,_,R) -> R;
 loop(N,L,_) -> loop(N-1,L,nrev(L)).
 
-main() ->
-    T1 = run_benchmark:time_now(),
+main([]) ->
     L = iota(1000),
-    _R = loop(1500,L,0),
-    run_benchmark:time_since(T1).
+    loop(1500,L,0).
+
 
 compile(Flags) ->
     hipe:c(?MODULE,Flags).

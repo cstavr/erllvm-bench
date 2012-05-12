@@ -1,7 +1,7 @@
 % file: "barnes.erl"
 
 -module(barnes).
--export([main/0]).
+-export([main/1]).
 
 create_scenario(N, M) ->
   create_scenario0(0, 0, trunc(math:sqrt(N)), M).
@@ -158,10 +158,6 @@ loop(N,Time,Stars,L) ->
   loop(N-1,Time,NS,NL).
   
 
-main() ->
+main([]) ->
   Stars = create_scenario(1000, 1.0),
-  T1 = run_benchmark:time_now(),
-  _Result = hd(loop(40,1000.0,Stars,0)),
-  Time = run_benchmark:time_since(T1),
-  %% io:format("\truntime = ~p msecs\n", [Time]),
-  Time.
+  hd(loop(40,1000.0,Stars,0)).

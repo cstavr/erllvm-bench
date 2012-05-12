@@ -18,7 +18,7 @@
 %%    "???" published in the "Journal of Functional Programming".
 
 -module(nucleic).
--export([main/0]).
+-export([main/1]).
 
 -compile({no_auto_import,[max/2]}).
 
@@ -3258,12 +3258,8 @@ max([],M) -> M.
 %% check() ->
 %%     length(pseudoknot()).
 
-main() -> 
-    T1 = run_benchmark:time_now(),
-    _Res = most_distant_atom(pseudoknot()),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("\truntime: ~w msecs \n", [Time]),
-    Time.
+main([]) -> 
+    most_distant_atom(pseudoknot()).
 
 % To run program, evaluate: doit
 

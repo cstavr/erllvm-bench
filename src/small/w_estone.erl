@@ -9,7 +9,7 @@
 -module(w_estone).
 -author('klacke@erix.ericsson.se').
 
--export([main/0, compile/1, macro/1, micros/0, run_micro/2,
+-export([main/1, compile/1, macro/1, micros/0, run_micro/2,
 	 int_arith/1, lists/1, msgp/1, msgp_medium/1, msgp_huge/1, p1/1,
 	 pattern/1, trav/1, large_dataset_work/1, mk_big_procs/1, big_proc/0,
 	 large_local_dataset_work/1, very_big/1, alloc/1, bif_dispatch/1,
@@ -51,11 +51,8 @@
 	 str}).    %% Header string
 
 
-main() ->
-    T1 = run_benchmark:time_now(),
+main([]) ->
     R = tty(all),
-    _Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[_Time]),
     R.
 
 compile(Flags) ->

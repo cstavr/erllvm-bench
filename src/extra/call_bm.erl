@@ -1,17 +1,10 @@
 -module(call_bm).
--export([main/0]).
+-export([main/1]).
 -export([local_call/1,external_call/1,fun_call/1,apply_fun/1,apply_mfa/1,
          atom_apply_mfa/1,select/1]).
 -export([foo/0,enc_foo/0]).
 
-main() ->
-    T1 = run_benchmark:time_now(),
-    run_benchmarks(),
-    Time = run_benchmark:time_since(T1),
-    %% io:format("~w\t",[Time]),
-    Time.
-
-run_benchmarks() ->
+main([]) ->
     Iter = 400000,
     local_call(Iter),
     external_call(Iter),
