@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+## Erlc flags to be used in each case:
 HIPE_FLAGS="{hipe, [{regalloc,coalescing}, o2]}"
 ERLLVM_FLAGS="{hipe, [o2, to_llvm]}"
 
@@ -7,13 +8,14 @@ ERLLVM_FLAGS="{hipe, [o2, to_llvm]}"
 run_all ()
 {
     OTP_ROOT=$1
-    DEBUG=$2
+    COMP=$2
+    DEBUG=$3
     echo "Running all benchmark classes..."
 
     ## Look for all available Classes to run
     for c in `find ebin/ -maxdepth 1 -mindepth 1 -type d`; do
         CLASS=`basename $c`
-        run_class $OTP_ROOT $CLASS $DEBUG
+        run_class $OTP_ROOT $CLASS $COMP $DEBUG
     done
 }
 
@@ -21,7 +23,8 @@ run_class ()
 {
     OTP_ROOT=$1
     CLASS=$2
-    DEBUG=$3
+    COMP=$3
+    DEBUG=$4
     echo "   [Class] $CLASS"
 
     ## Get failing
@@ -51,7 +54,7 @@ run_class ()
             continue
         fi
         ## Else run benchmark
-        run_benchmark $OTP_ROOT $BENCH $CLASS $DEBUG
+        run_benchmark $OTP_ROOT $BENCH $CLASS $COMP $DEBUG
     done
 }
 
@@ -65,17 +68,18 @@ run_benchmark ()
     OTP_ROOT=$1
     BENCH=$2
     CLASS=$3
-    DEBUG=$4
+    COMP=$4
+    DEBUG=$5
     echo "   --- $BENCH"
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
 
     T_tmp=`$OTP_ROOT/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
         -s run_benchmark run $BENCH -s erlang halt`
-    T=`calc $BT_tmp`
+    T=`calc $T_tmp`
 
     ## Print results to "resuls/runtime_$COMP.res":
-    printf "%-16s & %6.2f\n" $BENCH `calc $BT/1000` >> results/runtime_$BENCH.res
+    printf "%-16s & %6.2f\n" $BENCH `calc $T/1000` >> results/runtime_$COMP.res
 }
 
 plot_diagram ()
@@ -186,7 +190,8 @@ EOF
 
         for COMP in "beam" "hipe" "erllvm"; do
             ## Proper compile
-            echo "Compiling with $COMP..."
+            make clean > /dev/null
+            echo "  Re-compiling with $COMP..."
             ## Use the appropriate ERLC flags
             ERL_CFLAGS=
             if [ "$COMP" = "hipe" ]; then
@@ -195,12 +200,12 @@ EOF
             if [ "$COMP" = "erllvm" ]; then
                 ERL_CFLAGS=$ERLLVM_FLAGS
             fi
-
             make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS=$ERL_CFLAGS | pv -p > /dev/null
 
             ## Proper run
-            echo "### Benchmark $comp" > results/runtime_$comp.res
-            $RUN $OTP_ROOT/otp_$COMP $BENCH_CLASS $DEBUG
+            echo "Running $COMP..."
+            echo "### Benchmark $comp" > results/runtime_$COMP.res
+            $RUN $OTP_ROOT/otp_$COMP $BENCH_CLASS $COMP $DEBUG
         done
 
         ## Collect results
