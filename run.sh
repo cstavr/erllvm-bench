@@ -12,8 +12,8 @@ run_all ()
 
     ## Look for all available Classes to run
     for c in `find ebin/ -maxdepth 1 -mindepth 1 -type d`; do
-	CLASS=`basename $c`
-	run_class $OTP_ROOT $CLASS $DEBUG
+        CLASS=`basename $c`
+        run_class $OTP_ROOT $CLASS $DEBUG
     done
 }
 
@@ -26,32 +26,32 @@ run_class ()
 
     ## Get failing
     if [ -r failing ]; then
-	skipped=`cat failing`
+        skipped=`cat failing`
     else
-	skipped=
+        skipped=
     fi
 
     ## Get boilerplate
     BOILERPLATE=src/$CLASS/boilerplate
     if [ -r  $BOILERPLATE ]; then
-	skipped="$skipped `cat $BOILERPLATE`"
+        skipped="$skipped `cat $BOILERPLATE`"
     fi
 
     for f in `ls ebin/$CLASS/*.beam`; do
-	BENCH=`basename $f .beam`
-	## Skip file if in failing or boileprlate
-	SKIP="no"
-	for s in $skipped; do
-	    if [ "$BENCH" = "$s" ]; then
-		SKIP="yes"
-		break
-	    fi
-	done
-	if [ "$SKIP" = "yes" ]; then
-	    continue
-	fi
-	## Else run benchmark
-	run_benchmark $OTP_ROOT $BENCH $CLASS $DEBUG
+        BENCH=`basename $f .beam`
+        ## Skip file if in failing or boileprlate
+        SKIP="no"
+        for s in $skipped; do
+            if [ "$BENCH" = "$s" ]; then
+                SKIP="yes"
+                break
+            fi
+        done
+        if [ "$SKIP" = "yes" ]; then
+            continue
+        fi
+        ## Else run benchmark
+        run_benchmark $OTP_ROOT $BENCH $CLASS $DEBUG
     done
 }
 
@@ -66,52 +66,16 @@ run_benchmark ()
     BENCH=$2
     CLASS=$3
     DEBUG=$4
-    OTP_ROOT_BEAM=$OTP_ROOT/otp_beam
-    OTP_ROOT_HIPE=$OTP_ROOT/otp_hipe
-    OTP_ROOT_ERLLVM=$OTP_ROOT/otp_erllvm
     echo "   --- $BENCH"
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
-    ## Re-compile and run benchmarks, collect results:
-    ## BEAM
-    if [ $DEBUG -eq 1 ]; then
-	echo "Compiling BEAM..."
-    fi
-    if [ $DEBUG -eq 1 ]; then
-	echo "Running BEAM..."
-    fi
-    $OTP_ROOT_BEAM/bin/erlc -o ebin/$CLASS/ ebin/$CLASS/*.beam
-    BT_tmp=`$OTP_ROOT_BEAM/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
-	-s run_benchmark run $BENCH -s erlang halt`
-    BT=`calc $BT_tmp`
 
-    ## Vanilla HiPE
-    if [ $DEBUG -eq 1 ]; then
-	echo "Compiling with vanilla HiPE..."
-    fi
-    $OTP_ROOT_HIPE/bin/erlc +native +"'$HIPE_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
-    if [ $DEBUG -eq 1 ]; then
-	echo "Running vanilla HiPE..."
-    fi
-    HT_tmp=`$OTP_ROOT_HIPE/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
-	-s run_benchmark run $BENCH -s erlang halt`
-    HT=`calc $HT_tmp`
+    T_tmp=`$OTP_ROOT/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
+        -s run_benchmark run $BENCH -s erlang halt`
+    T=`calc $BT_tmp`
 
-    ## ErLLVM
-    if [ $DEBUG -eq 1 ]; then
-	echo "Compiling with ErLLVM..."
-    fi
-    $OTP_ROOT_ERLLVM/bin/erlc +native +"'$ERLLVM_FLAGS'" -o ebin/$CLASS/ ebin/$CLASS/*.beam
-    if [ $DEBUG -eq 1 ]; then
-	echo "Running ErLLVM..."
-    fi
-    LT_tmp=`$OTP_ROOT_ERLLVM/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
-	-s run_benchmark run $BENCH -s erlang halt`
-    LT=`calc $LT_tmp`
-    ## Print results to "resuls/runtime.res":
-    printf "%-16s & %6.3f & %6.3f & %6.2f & %6.2f & %6.2f \\\\\\ \n" \
-	$BENCH `calc $BT/$LT` `calc $HT/$LT` `calc $BT/1000` `calc $HT/1000` \
-	`calc $LT/1000` >> results/runtime.res
+    ## Print results to "resuls/runtime_$COMP.res":
+    printf "%-16s & %6.2f\n" $BENCH `calc $BT/1000` >> results/runtime_$BENCH.res
 }
 
 plot_diagram ()
@@ -128,15 +92,7 @@ plot_diagram ()
     ## Copy speedup.perf template and append results:
     cp $SCRIPTS_DIR/speedup.perf $TMP_PERF
     cat results/$INPUT >> $TMP_PERF
-    ## Check that their are no unmet dependencies:
-    echo -n "Checking for gnuplot..."
-    command -v gnuplot > /dev/null 2>&1 || \
-	{ echo "gnuplot is required but it's not installed. Aborting." >&2; exit 1; }
-    echo " ok!"
-    echo -n "Checking for fig2ps..."
-    command -v gnuplot > /dev/null 2>&1 || \
-	{ echo "fig2ps is required but it's not installed. Aborting." >&2; exit 1; }
-    echo " ok!"
+
     ## Create diagram in diagram:
     $SCRIPTS_DIR/bargraph.pl $TMP_PERF > $DIAGRAMS_DIR/$HASH.eps 2> /dev/null
     rm -rf $TMP_DIR
@@ -153,11 +109,11 @@ non-option argument) as root and creates the corresponding diagrams.
 In the OTP directory provided there should be 3 subdirectories
 including complete OTP installations:
   * otp_beam: This OTP is used to run BEAM stuff and all modules are
-	      in BEAM.
+              in BEAM.
   * otp_hipe: This OTP is used to run HiPE stuff and is has been
-	      compiled with --enable-native-libs.
+              compiled with --enable-native-libs.
   * otp_erllvm: This OTP is used to run ErLLVM stuff and is has been
-		compiled with --enable-native-libs and [to_llvm].
+                compiled with --enable-native-libs and [to_llvm].
 
 OPTIONS:
   -h    Show this message
@@ -180,25 +136,25 @@ main ()
     DEBUG=0
 
     while getopts "hadn:c:" OPTION; do
-	case $OPTION in
-	    h|\?)
-		usage
-		exit 0
-		;;
-	    a)
-		RUN=run_all
-		;;
-	    c) ## Run *only* specified benchmark class:
-		RUN=run_class
-		BENCH_CLASS=$OPTARG
-		;;
-	    n)
-		ITERATIONS=$OPTARG
-		;;
-	    d)
-		DEBUG=1
-		;;
-	esac
+        case $OPTION in
+            h|\?)
+                usage
+                exit 0
+                ;;
+            a)
+                RUN=run_all
+                ;;
+            c) ## Run *only* specified benchmark class:
+                RUN=run_class
+                BENCH_CLASS=$OPTARG
+                ;;
+            n)
+                ITERATIONS=$OPTARG
+                ;;
+            d)
+                DEBUG=1
+                ;;
+        esac
     done
 
     ## $1 is now the first non-option argument, $2 the second, etc
@@ -208,12 +164,12 @@ main ()
     ## If RUN is not set something went wrong (probably the script was called
     ## with no args):
     if [ -z $RUN ]; then
-	usage
-	exit 1
+        usage
+        exit 1
     fi
 
     if [ $DEBUG -eq 1 ]; then
-	cat << EOF
+        cat << EOF
 -- Debug info:
   Iter         = $ITERATIONS
   Run          = $RUN
@@ -226,18 +182,41 @@ EOF
 
     ## Run $ITERATIONS times:
     for i in `seq 1 $ITERATIONS`; do
-	echo "Iter $i/$ITERATIONS:"
-	echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
-	    > results/runtime.res
-	$RUN $OTP_ROOT $BENCH_CLASS $DEBUG
-	awk '{btl += $3; htl += $5} END {print "Runtime BTL:", btl/(NR-1), \
-"Runtime HTL:", htl/(NR-1)}' results/runtime.res
+        echo "Iter $i/$ITERATIONS:"
 
-	## Copy results to another .res file:
-	NEW_RES=runtime-`date +"%y.%m.%d-%H:%M:%S"`.res
-	mv results/runtime.res results/$NEW_RES
+        for COMP in "beam" "hipe" "erllvm"; do
+            ## Proper compile
+            echo "Compiling with $COMP..."
+            ## Use the appropriate ERLC flags
+            ERL_CFLAGS=
+            if [ "$COMP" = "hipe" ]; then
+                ERL_CFLAGS=$HIPE_FLAGS
+            fi
+            if [ "$COMP" = "erllvm" ]; then
+                ERL_CFLAGS=$ERLLVM_FLAGS
+            fi
 
-	plot_diagram $NEW_RES
+            make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS=$ERL_CFLAGS | pv -p > /dev/null
+
+            ## Proper run
+            echo "### Benchmark $comp" > results/runtime_$comp.res
+            $RUN $OTP_ROOT/otp_$COMP $BENCH_CLASS $DEBUG
+        done
+
+        ## Collect results
+        # echo "Collecting results..."
+        # collect_results
+        # echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
+        #     > results/runtime.res
+        # awk '{btl += $3; htl += $5} END {print "Runtime BTL:", btl/(NR-1), \
+        #    "Runtime HTL:", htl/(NR-1)}' results/runtime.res
+
+        ## Copy results to another .res file:
+        NEW_RES=runtime-`date +"%y.%m.%d-%H:%M:%S"`.res
+        mv results/runtime.res results/$NEW_RES
+
+        ## Plot results
+        plot_diagram $NEW_RES
     done
 }
 

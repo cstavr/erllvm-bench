@@ -9,10 +9,27 @@ $(shell [ -d "diagrams/" ] || mkdir diagrams/)
 $(shell [ -d "results/" ] || mkdir results/)
 $(shell [ -d "$(EBIN_DIR)/" ] || mkdir $(EBIN_DIR)/)
 
-.PHONY: all clean distclean
+## Check that certain programs are available
+GNUPLOT := $(shell which gnuplot)
+ifeq ($(GNUPLOT),)
+$(warning gnuplot is required but it is not found! Aborting.)
+endif
+
+FIG2PS  := $(shell which fig2ps)
+ifeq ($(FIG2PS),)
+$(warning fig2ps is required but it is not found! Aborting.)
+endif
+
+PV      := $(shell which pv)
+ifeq ($(PV),)
+$(warning pv is required but it is not found! Aborting.)
+endif
+
+
+.PHONY: all check clean distclean
 
 all: $(BEAM_FILES)
-	@(cd src && $(MAKE) EBIN_DIR=../$(EBIN_DIR) ERLC=$(ERLC) ERL_COMPILE_FLAGS=$(ERL_COMPILE_FLAGS) $@)
+	@(cd src && make EBIN_DIR=../$(EBIN_DIR) ERLC=$(ERLC) ERL_COMPILE_FLAGS="$(ERL_COMPILE_FLAGS)" $@)
 
 %.beam: %.erl
 	$(ERLC) $(ERL_COMPILE_FLAGS) -o $(EBIN_DIR) $<
