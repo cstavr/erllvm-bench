@@ -9,3 +9,4 @@ diagrams/*
 *.s
 *.o
 erl_crash.dump
+io_file

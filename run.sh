@@ -58,11 +58,6 @@ run_class ()
     done
 }
 
-calc ()
-{
-    echo $1 | bc -l
-}
-
 run_benchmark ()
 {
     OTP=$1
@@ -74,12 +69,8 @@ run_benchmark ()
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
 
-    T_tmp=`$OTP/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
-        -s run_benchmark run $BENCH -s erlang halt`
-    T=`calc $T_tmp`
-
-    ## Print results to "resuls/runtime_$COMP.res":
-    printf "%-16s %6.2f\n" $BENCH `calc $T/1000` >> results/runtime_$COMP.res
+    $OTP/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run \
+        $BENCH $COMP -s erlang halt
 }
 
 collect_results ()
@@ -88,9 +79,9 @@ collect_results ()
 
     echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
         > results/runtime.res
-    pr -m -t results/runtime_beam.res results/runtime_hipe.res \
-        results/runtime_erllvm.res | gawk '{print $1 "\t" $2 "\t" $4 "\t" $6}' \
-        | awk '{print $1 "\t" $2/$4 "\t" $3/$4 "\t\t" $2 "\t" $3 "\t" $4}' \
+    pr -m -t results/runtime_beam-err.res results/runtime_hipe-err.res \
+        results/runtime_erllvm-err.res \
+        | gawk '{print $1 "\t" $2/$4 "\t" $4/$6 "\t\t" $2 "\t" $4 "\t" $6}' \
         >> results/runtime.res
 
     ## Print average performance results of current execution:
@@ -230,12 +221,13 @@ EOF
         ## Plot results:
         plot_diagram runtime.res
 
-        ## Backup all result files to unique .res files:
+        ## Backup all result files & diagrams to unique .res files:
         NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
         mv results/runtime.res results/runtime-$NEW_SUFFIX.res
         mv results/runtime_beam.res results/runtime_beam-$NEW_SUFFIX.res
         mv results/runtime_hipe.res results/runtime_hipe-$NEW_SUFFIX.res
         mv results/runtime_erllvm.res results/runtime_erllvm-$NEW_SUFFIX.res
+        mv diagrams/runtime.eps diagrams/runtime-$NEW_SUFFIX.eps
     done
 }
 
