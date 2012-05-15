@@ -109,9 +109,9 @@ plot_diagram ()
     echo "Plotting results..."
 
     mkdir -p $TMP_DIR
-    ## Copy speedup.perf template and append results:
+    ## Copy speedup.perf template and append speedup results only:
     cp $SCRIPTS_DIR/speedup.perf $TMP_PERF
-    cat results/$INPUT >> $TMP_PERF
+    cat results/$INPUT | awk '{print $1 "\t& " $2 "\t& " $3}' >> $TMP_PERF
 
     ## Create diagram in diagram:
     $SCRIPTS_DIR/bargraph.pl $TMP_PERF > $DIAGRAMS_DIR/$HASH.eps 2> /dev/null
@@ -231,11 +231,11 @@ EOF
         plot_diagram runtime.res
 
         ## Backup all result files to unique .res files:
-        # NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
-        # mv results/runtime.res results/runtime-$NEW_SUFFIX.res
-        # mv results/runtime_beam.res results/runtime_beam-$NEW_SUFFIX.res
-        # mv results/runtime_hipe.res results/runtime_hipe-$NEW_SUFFIX.res
-        # mv results/runtime_erllvm.res results/runtime_erllvm-$NEW_SUFFIX.res
+        NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
+        mv results/runtime.res results/runtime-$NEW_SUFFIX.res
+        mv results/runtime_beam.res results/runtime_beam-$NEW_SUFFIX.res
+        mv results/runtime_hipe.res results/runtime_hipe-$NEW_SUFFIX.res
+        mv results/runtime_erllvm.res results/runtime_erllvm-$NEW_SUFFIX.res
     done
 }
 
