@@ -18,7 +18,7 @@ all: $(BEAM_FILES)
 	$(ERLC) $(ERL_COMPILE_FLAGS) -o $(EBIN_DIR) $<
 
 clean:
-	$(RM) ebin/$(BEAM_FILES)
+	$(RM) ebin/$(BEAM_FILES) io_file
 	@(cd src && $(MAKE) EBIN_DIR=../$(EBIN_DIR) $@)
 
 distclean: clean

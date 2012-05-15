@@ -32,7 +32,7 @@ run_bench(File) ->
     end,
   spawn_opt(fun () ->
         % Supress IO
-        {ok, F} = file:open("result_file", [write]),
+        {ok, F} = file:open("io_file", [write]),
         group_leader(F, self()),
         T1 = run_benchmark:time_now(),
         Time = try
