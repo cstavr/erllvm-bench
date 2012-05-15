@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 ## Erlc flags to be used in each case:
-HIPE_FLAGS="{hipe, [{regalloc,coalescing}, o2]}"
-ERLLVM_FLAGS="{hipe, [o2, to_llvm]}"
+HIPE_FLAGS="+native +'{hipe,[{regalloc,coalescing},o2]}'"
+ERLLVM_FLAGS="+native +'{hipe,[o2,to_llvm]}'"
 
 ## Executes all benchmarks
 run_all ()
 {
-    OTP_ROOT=$1
+    OTP=$1
     COMP=$2
     DEBUG=$3
     echo "Running all benchmark classes..."
@@ -15,13 +15,13 @@ run_all ()
     ## Look for all available Classes to run
     for c in `find ebin/ -maxdepth 1 -mindepth 1 -type d`; do
         CLASS=`basename $c`
-        run_class $OTP_ROOT $CLASS $COMP $DEBUG
+        run_class $OTP $CLASS $COMP $DEBUG
     done
 }
 
 run_class ()
 {
-    OTP_ROOT=$1
+    OTP=$1
     CLASS=$2
     COMP=$3
     DEBUG=$4
@@ -54,7 +54,7 @@ run_class ()
             continue
         fi
         ## Else run benchmark
-        run_benchmark $OTP_ROOT $BENCH $CLASS $COMP $DEBUG
+        run_benchmark $OTP $BENCH $CLASS $COMP $DEBUG
     done
 }
 
@@ -65,7 +65,7 @@ calc ()
 
 run_benchmark ()
 {
-    OTP_ROOT=$1
+    OTP=$1
     BENCH=$2
     CLASS=$3
     COMP=$4
@@ -74,12 +74,28 @@ run_benchmark ()
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
 
-    T_tmp=`$OTP_ROOT/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
+    T_tmp=`$OTP/bin/erl -pa ebin/ $EBIN_DIRS -noshell \
         -s run_benchmark run $BENCH -s erlang halt`
     T=`calc $T_tmp`
 
     ## Print results to "resuls/runtime_$COMP.res":
-    printf "%-16s & %6.2f\n" $BENCH `calc $T/1000` >> results/runtime_$COMP.res
+    printf "%-16s %6.2f\n" $BENCH `calc $T/1000` >> results/runtime_$COMP.res
+}
+
+collect_results ()
+{
+    echo "Collecting results..."
+
+    echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
+        > results/runtime.res
+    pr -m -t results/runtime_beam.res results/runtime_hipe.res \
+        results/runtime_erllvm.res | gawk '{print $1 "\t" $2 "\t" $4 "\t" $6}' \
+        | awk '{print $1 "\t" $2/$4 "\t" $3/$4 "\t\t" $2 "\t" $3 "\t" $4}' \
+        >> results/runtime.res
+
+    ## Print average performance results of current execution:
+    awk '{btl += $2; htl += $3} END {print "Runtime BTL:", btl/(NR-1), \
+        "Runtime HTL:", htl/(NR-1)}' results/runtime.res
 }
 
 plot_diagram ()
@@ -179,12 +195,12 @@ main ()
   Run          = $RUN
   Class        = $BENCH_CLASS
   OTP          = $OTP_ROOT
-  HiPE_FLAGS   = '$HIPE_FLAGS'
-  ErLLVM_FLAGS = '$ERLLVM_FLAGS'
+  HiPE_FLAGS   = $HIPE_FLAGS
+  ErLLVM_FLAGS = $ERLLVM_FLAGS
 EOF
     fi
 
-    ## Run $ITERATIONS times:
+    # Run $ITERATIONS times:
     for i in `seq 1 $ITERATIONS`; do
         echo "Iter $i/$ITERATIONS:"
 
@@ -200,28 +216,26 @@ EOF
             if [ "$COMP" = "erllvm" ]; then
                 ERL_CFLAGS=$ERLLVM_FLAGS
             fi
-            make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS=$ERL_CFLAGS | pv -p > /dev/null
+            make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS="$ERL_CFLAGS" \
+                | pv -p > /dev/null
 
             ## Proper run
-            echo "Running $COMP..."
-            echo "### Benchmark $comp" > results/runtime_$COMP.res
+            echo "  Running $COMP..."
             $RUN $OTP_ROOT/otp_$COMP $BENCH_CLASS $COMP $DEBUG
         done
 
-        ## Collect results
-        # echo "Collecting results..."
-        # collect_results
-        # echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
-        #     > results/runtime.res
-        # awk '{btl += $3; htl += $5} END {print "Runtime BTL:", btl/(NR-1), \
-        #    "Runtime HTL:", htl/(NR-1)}' results/runtime.res
+        ## Collect results in results/runtime.res:
+        collect_results
 
-        ## Copy results to another .res file:
-        NEW_RES=runtime-`date +"%y.%m.%d-%H:%M:%S"`.res
-        mv results/runtime.res results/$NEW_RES
+        ## Plot results:
+        plot_diagram runtime.res
 
-        ## Plot results
-        plot_diagram $NEW_RES
+        ## Backup all result files to unique .res files:
+        # NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
+        # mv results/runtime.res results/runtime-$NEW_SUFFIX.res
+        # mv results/runtime_beam.res results/runtime_beam-$NEW_SUFFIX.res
+        # mv results/runtime_hipe.res results/runtime_hipe-$NEW_SUFFIX.res
+        # mv results/runtime_erllvm.res results/runtime_erllvm-$NEW_SUFFIX.res
     done
 }
 
