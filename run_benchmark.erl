@@ -1,6 +1,9 @@
 %% -*- erlang-indent-level: 2 -*-
 -module(run_benchmark).
+
 -export([run/1]).
+
+-include("stats.hrl").
 
 run([Module, Comp]) ->
   bench_file(Module, Comp).
@@ -20,10 +23,10 @@ bench_file(File, Comp) ->
   T = run_bench(File),
   %% Write results/errors to files:
   ResFile = lists:concat(["results/runtime_", Comp, ".res"]),
-  file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T])
+  file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.median])
                   , [append]),
   ErrFile = lists:concat(["results/runtime_", Comp, "-err.res"]),
-  file:write_file(ErrFile, io_lib:fwrite("~w\t~.3f\n", [File, T]) %FIXME: Err!
+  file:write_file(ErrFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.stddev])
                   , [append]).
 
 run_bench(File) ->
@@ -37,20 +40,21 @@ run_bench(File) ->
       false -> []
     end,
   spawn_opt(fun () ->
-        % Supress IO
-        {ok, F} = file:open("io_file", [write]),
-        group_leader(F, self()),
-        T1 = time_now(),
-        Time = try
-                 File:main(Args),
-                 time_since(T1)
-               catch
-                 exit:ok -> time_since(T1);
-                 _:_ -> -1
-               end,
-        Myself ! Time,
-        file:close(F)
-        end, Opts),
+                %% Supress IO
+                {ok, F} = file:open("io_file", [write]),
+                group_leader(F, self()),
+                %% Use a runner in order to catch the exiting exception.
+                Runner = fun () -> try
+                                     File:main(Args)
+                                   catch
+                                     exit:ok -> ok;
+                                     _:_ -> badexit
+                                   end
+                         end,
+                Times = stats:test_avg(Runner, [], 2),
+                Myself ! Times,
+                file:close(F)
+            end, Opts),
   receive
     Result -> Result
   end.

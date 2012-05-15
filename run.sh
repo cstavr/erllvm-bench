@@ -79,14 +79,20 @@ collect_results ()
 
     echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
         > results/runtime.res
-    pr -m -t results/runtime_beam-err.res results/runtime_hipe-err.res \
-        results/runtime_erllvm-err.res \
+    pr -m -t results/runtime_beam.res results/runtime_hipe.res \
+        results/runtime_erllvm.res \
         | gawk '{print $1 "\t" $2/$4 "\t" $4/$6 "\t\t" $2 "\t" $4 "\t" $6}' \
         >> results/runtime.res
-
     ## Print average performance results of current execution:
     awk '{btl += $2; htl += $3} END {print "Runtime BTL:", btl/(NR-1), \
         "Runtime HTL:", htl/(NR-1)}' results/runtime.res
+
+    echo "### Standard deviation BEAM HiPE ErLLVM" \
+        > results/runtime-err.res
+    pr -m -t results/runtime_beam-err.res results/runtime_hipe-err.res \
+        results/runtime_erllvm-err.res \
+        | gawk '{print $1 "\t" $2 "\t" $4 "\t" $6}' \
+        >> results/runtime-err.res
 }
 
 plot_diagram ()
@@ -223,10 +229,10 @@ EOF
 
         ## Backup all result files & diagrams to unique .res files:
         NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
-        mv results/runtime.res results/runtime-$NEW_SUFFIX.res
-        mv results/runtime_beam.res results/runtime_beam-$NEW_SUFFIX.res
-        mv results/runtime_hipe.res results/runtime_hipe-$NEW_SUFFIX.res
-        mv results/runtime_erllvm.res results/runtime_erllvm-$NEW_SUFFIX.res
+        for c in "" "_beam" "_hipe" "_erllvm"; do
+            mv results/runtime$c.res results/runtime$c-$NEW_SUFFIX.res
+            mv results/runtime$c-err.res results/runtime$c-err-$NEW_SUFFIX.res
+        done;
         mv diagrams/runtime.eps diagrams/runtime-$NEW_SUFFIX.eps
     done
 }
