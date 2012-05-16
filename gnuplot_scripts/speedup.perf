@@ -5,9 +5,10 @@
 colors=med_blue,light_green
 =arithmean
 meanlabel=Average
-=table&
 yformat=%g
 ylabel=Runtime Speedup
 xlabel=Benchmark
 horizline=1
+
+=table
 

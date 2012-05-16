@@ -73,7 +73,7 @@ collect_results ()
 {
     echo "Collecting results..."
 
-    echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM" \
+    echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM (millisecs)" \
         > results/runtime.res
     pr -m -t results/runtime_beam.res results/runtime_hipe.res \
         results/runtime_erllvm.res \
@@ -83,7 +83,7 @@ collect_results ()
     awk '{btl += $2; htl += $3} END {print "Runtime BTL:", btl/(NR-1), \
         "Runtime HTL:", htl/(NR-1)}' results/runtime.res
 
-    echo "### Standard deviation BEAM HiPE ErLLVM" \
+    echo "### Standard deviation BEAM HiPE ErLLVM (millisecs)" \
         > results/runtime-err.res
     pr -m -t results/runtime_beam-err.res results/runtime_hipe-err.res \
         results/runtime_erllvm-err.res \
@@ -102,9 +102,9 @@ plot_diagram ()
     echo "Plotting results..."
 
     mkdir -p $TMP_DIR
-    ## Copy speedup.perf template and append speedup results only:
+    ## Copy speedup.perf template and append only speedups:
     cp $SCRIPTS_DIR/speedup.perf $TMP_PERF
-    cat results/$INPUT | awk '{print $1 "\t& " $2 "\t& " $3}' >> $TMP_PERF
+    cat results/$INPUT | awk '{print $1 "\t " $2 "\t " $3}' >> $TMP_PERF
 
     ## Create diagram in diagram:
     $SCRIPTS_DIR/bargraph.pl $TMP_PERF > $DIAGRAMS_DIR/$HASH.eps 2> /dev/null
@@ -126,7 +126,6 @@ spinner () {
     done
     echo "done!"
 }
-
 
 usage ()
 {
@@ -230,10 +229,10 @@ EOF
     ## Collect results in results/runtime.res:
     collect_results
 
-        ## Plot results:
+    ## Plot results:
     plot_diagram runtime.res
 
-        ## Backup all result files & diagrams to unique .res files:
+    ## Backup all result files & diagrams to unique .res files:
     NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
     for c in "" "_beam" "_hipe" "_erllvm"; do
         mv results/runtime$c.res results/runtime$c-$NEW_SUFFIX.res
