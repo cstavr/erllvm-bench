@@ -10,7 +10,8 @@
 
 %% @doc Use timer:tc/2
 regression_timer_1(Fun, Args) ->
-    timer:tc(Fun, Args).
+    {Time, Result} = timer:tc(Fun, Args),
+    {round(Time/1000), Result}. % Return millisecs.
 
 %% @doc Use erlang:now/0
 regression_timer_2(Fun, Args) ->
@@ -18,7 +19,7 @@ regression_timer_2(Fun, Args) ->
     Result = apply(Fun, Args),
     Stop = now(),
     Time = timer:now_diff(Stop, Start),
-    {Time, Result}.
+    {round(Time/1000), Result}. % Return millisecs.
 
 %% @doc Use erlang:statistics(wall_clock)
 regression_timer_3(Fun, Args) ->
