@@ -20,11 +20,6 @@ ifeq ($(FIG2PS),)
 $(warning fig2ps is required but it is not found! Aborting.)
 endif
 
-PV      := $(shell which pv)
-ifeq ($(PV),)
-$(warning pv is required but it is not found! Aborting.)
-endif
-
 
 .PHONY: all check clean distclean
 

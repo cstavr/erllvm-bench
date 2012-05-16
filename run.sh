@@ -111,6 +111,23 @@ plot_diagram ()
     rm -rf $TMP_DIR
 }
 
+spinner () {
+    PROC=$1;COUNT=0
+    echo -n "Please wait... "
+    while [ -d /proc/$PROC ];do
+        while [ "$COUNT" -lt 10 ];do
+            echo -n '  ' ; sleep 0.1
+            ((COUNT++))
+        done
+        until [ "$COUNT" -eq 0 ];do
+            echo -n ' ' ; sleep 0.1
+            ((COUNT -= 1))
+        done
+    done
+    echo "done!"
+}
+
+
 usage ()
 {
     cat << EOF
@@ -191,7 +208,7 @@ EOF
     for COMP in "beam" "hipe" "erllvm"; do
         ## Proper compile
         make clean > /dev/null
-        echo "  Re-compiling with $COMP..."
+        echo -n "  Re-compiling with $COMP. "
         ## Use the appropriate ERLC flags
         ERL_CFLAGS=
         if [ "$COMP" = "hipe" ]; then
@@ -201,7 +218,8 @@ EOF
             ERL_CFLAGS=$ERLLVM_FLAGS
         fi
         make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS="$ERL_CFLAGS" \
-            | pv -p > /dev/null
+            > /dev/null 2>&1 &
+        spinner $(pidof make)
 
         ## Proper run
         echo "  Running $COMP..."
