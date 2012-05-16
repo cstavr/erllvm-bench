@@ -4,27 +4,28 @@
 HIPE_FLAGS="+native +'{hipe,[{regalloc,coalescing},o2]}'"
 ERLLVM_FLAGS="+native +'{hipe,[o2,to_llvm]}'"
 
-## Executes all benchmarks
+## All arguments are made globals:
+ACTION=      # The run function to be executed (run_all, run_class)
+OTP=         # The OTP to be used for erlc and erl
+COMP=        # The name of the compiler (beam, hipe, erllvm)
+CLASS=       # The class of benchmarks to be executed
+BENCH=       # The name of the benchmark to be executed
+ITERATIONS=2 # Number of executions of benchmarks to collect statistics
+DEBUG=0      # Debug mode (0=Off, 1=On)
+
 run_all ()
 {
-    OTP=$1
-    COMP=$2
-    DEBUG=$3
     echo "Running all benchmark classes..."
 
     ## Look for all available Classes to run
     for c in `find ebin/ -maxdepth 1 -mindepth 1 -type d`; do
         CLASS=`basename $c`
-        run_class $OTP $CLASS $COMP $DEBUG
+        run_class
     done
 }
 
 run_class ()
 {
-    OTP=$1
-    CLASS=$2
-    COMP=$3
-    DEBUG=$4
     echo "   [Class] $CLASS"
 
     ## Get failing
@@ -54,23 +55,18 @@ run_class ()
             continue
         fi
         ## Else run benchmark
-        run_benchmark $OTP $BENCH $CLASS $COMP $DEBUG
+        run_benchmark
     done
 }
 
 run_benchmark ()
 {
-    OTP=$1
-    BENCH=$2
-    CLASS=$3
-    COMP=$4
-    DEBUG=$5
     echo "   --- $BENCH"
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
 
     $OTP/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run \
-        $BENCH $COMP -s erlang halt
+        $BENCH $COMP $ITERATIONS -s erlang halt
 }
 
 collect_results ()
@@ -134,9 +130,9 @@ including complete OTP installations:
 
 OPTIONS:
   -h    Show this message
-  -a    Run all available benchmarks
+  -a    Run all available benchmarks (default)
   -c    Benchmark class to run
-  -n    Number of iterations
+  -n    Number of iterations (default=$ITERATIONS)
 
 Examples:
   1) $0 -c shootout -n 3 ~/git/otp
@@ -147,11 +143,6 @@ EOF
 
 main ()
 {
-    RUN=
-    BENCH_CLASS=
-    ITERATIONS=1
-    DEBUG=0
-
     while getopts "hadn:c:" OPTION; do
         case $OPTION in
             h|\?)
@@ -159,11 +150,11 @@ main ()
                 exit 0
                 ;;
             a)
-                RUN=run_all
+                ACTION=run_all
                 ;;
             c) ## Run *only* specified benchmark class:
-                RUN=run_class
-                BENCH_CLASS=$OPTARG
+                ACTION=run_class
+                CLASS=$OPTARG
                 ;;
             n)
                 ITERATIONS=$OPTARG
@@ -173,14 +164,13 @@ main ()
                 ;;
         esac
     done
-
     ## $1 is now the first non-option argument, $2 the second, etc
     shift $(($OPTIND - 1))
     OTP_ROOT=$1
 
-    ## If RUN is not set something went wrong (probably the script was called
-    ## with no args):
-    if [ -z $RUN ]; then
+    ## If ACTION is not set something went wrong (probably the script was
+    ## called with no args):
+    if [ -z $ACTION ]; then
         usage
         exit 1
     fi
@@ -189,52 +179,49 @@ main ()
         cat << EOF
 -- Debug info:
   Iter         = $ITERATIONS
-  Run          = $RUN
-  Class        = $BENCH_CLASS
+  Run          = $ACTION
+  Class        = $CLASS
   OTP          = $OTP_ROOT
   HiPE_FLAGS   = $HIPE_FLAGS
   ErLLVM_FLAGS = $ERLLVM_FLAGS
 EOF
     fi
 
-    # Run $ITERATIONS times:
-    for i in `seq 1 $ITERATIONS`; do
-        echo "Iter $i/$ITERATIONS:"
+    echo "Executing $ITERATIONS iterations/benchmark."
+    for COMP in "beam" "hipe" "erllvm"; do
+        ## Proper compile
+        make clean > /dev/null
+        echo "  Re-compiling with $COMP..."
+        ## Use the appropriate ERLC flags
+        ERL_CFLAGS=
+        if [ "$COMP" = "hipe" ]; then
+            ERL_CFLAGS=$HIPE_FLAGS
+        fi
+        if [ "$COMP" = "erllvm" ]; then
+            ERL_CFLAGS=$ERLLVM_FLAGS
+        fi
+        make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS="$ERL_CFLAGS" \
+            | pv -p > /dev/null
 
-        for COMP in "beam" "hipe" "erllvm"; do
-            ## Proper compile
-            make clean > /dev/null
-            echo "  Re-compiling with $COMP..."
-            ## Use the appropriate ERLC flags
-            ERL_CFLAGS=
-            if [ "$COMP" = "hipe" ]; then
-                ERL_CFLAGS=$HIPE_FLAGS
-            fi
-            if [ "$COMP" = "erllvm" ]; then
-                ERL_CFLAGS=$ERLLVM_FLAGS
-            fi
-            make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS="$ERL_CFLAGS" \
-                | pv -p > /dev/null
+        ## Proper run
+        echo "  Running $COMP..."
+        OTP=$OTP_ROOT/otp_$COMP
+        $ACTION
+    done
 
-            ## Proper run
-            echo "  Running $COMP..."
-            $RUN $OTP_ROOT/otp_$COMP $BENCH_CLASS $COMP $DEBUG
-        done
-
-        ## Collect results in results/runtime.res:
-        collect_results
+    ## Collect results in results/runtime.res:
+    collect_results
 
         ## Plot results:
-        plot_diagram runtime.res
+    plot_diagram runtime.res
 
         ## Backup all result files & diagrams to unique .res files:
-        NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
-        for c in "" "_beam" "_hipe" "_erllvm"; do
-            mv results/runtime$c.res results/runtime$c-$NEW_SUFFIX.res
-            mv results/runtime$c-err.res results/runtime$c-err-$NEW_SUFFIX.res
-        done;
-        mv diagrams/runtime.eps diagrams/runtime-$NEW_SUFFIX.eps
-    done
+    NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
+    for c in "" "_beam" "_hipe" "_erllvm"; do
+        mv results/runtime$c.res results/runtime$c-$NEW_SUFFIX.res
+        mv results/runtime$c-err.res results/runtime$c-err-$NEW_SUFFIX.res
+    done;
+    mv diagrams/runtime.eps diagrams/runtime-$NEW_SUFFIX.eps
 }
 
 main $@

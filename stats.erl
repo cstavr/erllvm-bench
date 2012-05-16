@@ -92,7 +92,12 @@ avg(L) ->
     lists:sum(L) / length(L).
 
 std_dev(Values) ->
-    Avg = avg(Values),
-    Sums = lists:foldl(
-             fun(V, Acc) -> D = V - Avg, Acc + (D * D) end, 0, Values),
-    math:sqrt(Sums / (length(Values) - 1.0)).
+    L = length(Values),
+    case L =:= 1 of
+        true -> 0.0; % Executed only once (no deviation).
+        false ->
+            Avg = avg(Values),
+            Sums = lists:foldl(
+                     fun(V, Acc) -> D = V - Avg, Acc + (D * D) end, 0, Values),
+            math:sqrt(Sums / L - 1.0)
+    end.

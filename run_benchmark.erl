@@ -5,10 +5,10 @@
 
 -include("stats.hrl").
 
-run([Module, Comp]) ->
-  bench_file(Module, Comp).
+run([Module, Comp, N]) ->
+  bench_file(Module, Comp, list_to_integer(atom_to_list(N))).
 
-bench_file(File, Comp) ->
+bench_file(File, Comp, N) ->
   case File of
     prettypr ->
       case get(prettypr_data) of
@@ -20,7 +20,7 @@ bench_file(File, Comp) ->
       end;
     _ -> ok
   end,
-  T = run_bench(File),
+  T = run_bench(File, N),
   %% Write results/errors to files:
   ResFile = lists:concat(["results/runtime_", Comp, ".res"]),
   file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.median])
@@ -29,7 +29,7 @@ bench_file(File, Comp) ->
   file:write_file(ErrFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.stddev])
                   , [append]).
 
-run_bench(File) ->
+run_bench(File, N) when is_integer(N) ->
   Myself = self(),
   Opts = [], %[{min_heap_size, 100000000}],
   Size = medium,
@@ -51,7 +51,7 @@ run_bench(File) ->
                                      _:_ -> badexit
                                    end
                          end,
-                Times = stats:test_avg(Runner, [], 2),
+                Times = stats:test_avg(Runner, [], N),
                 Myself ! Times,
                 file:close(F)
             end, Opts),
