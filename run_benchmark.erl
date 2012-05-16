@@ -58,10 +58,3 @@ run_bench(File, N) when is_integer(N) ->
   receive
     Result -> Result
   end.
-
-time_now() ->
-  erlang:now().
-
-time_since(T1) ->
-  T2 = erlang:now(),
-  timer:now_diff(T2, T1)/1000000. % Return seconds
