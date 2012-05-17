@@ -12,12 +12,12 @@ $(shell [ -d "$(EBIN_DIR)/" ] || mkdir $(EBIN_DIR)/)
 ## Check that certain programs are available
 GNUPLOT := $(shell which gnuplot)
 ifeq ($(GNUPLOT),)
-$(warning gnuplot is required but it is not found! Aborting.)
+$(error gnuplot is required but it is not found! Aborting.)
 endif
 
 FIG2PS  := $(shell which fig2ps)
 ifeq ($(FIG2PS),)
-$(warning fig2ps is required but it is not found! Aborting.)
+$(error fig2ps is required but it is not found! Aborting.)
 endif
 
 
