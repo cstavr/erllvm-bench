@@ -77,7 +77,7 @@ collect_results ()
         > results/runtime.res
     pr -m -t results/runtime_beam.res results/runtime_hipe.res \
         results/runtime_erllvm.res \
-        | gawk '{print $1 "\t" $2/$4 "\t" $4/$6 "\t\t" $2 "\t" $4 "\t" $6}' \
+        | gawk '{print $1 "\t" $2/$6 "\t" $4/$6 "\t\t" $2 "\t" $4 "\t" $6}' \
         >> results/runtime.res
     ## Print average performance results of current execution:
     awk '{btl += $2; htl += $3} END {print "Runtime BTL:", btl/(NR-1), \

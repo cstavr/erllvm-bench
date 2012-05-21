@@ -100,5 +100,5 @@ std_dev(Values) ->
             Avg = avg(Values),
             Sums = lists:foldl(
                      fun(V, Acc) -> D = V - Avg, Acc + (D * D) end, 0, Values),
-            math:sqrt(Sums / L - 1.0)
+            math:sqrt(Sums / (L - 1))
     end.
