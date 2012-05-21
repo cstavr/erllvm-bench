@@ -1,5 +1,5 @@
 #DIRS = $(wildcard */)
-DIRS = orbit-int shootout small dons extra
+DIRS = orbit-int shootout small # dons extra
 
 .PHONY: all clean
 
