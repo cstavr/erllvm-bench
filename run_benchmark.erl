@@ -5,10 +5,15 @@
 
 -include("stats.hrl").
 
-run([Module, Comp, N]) ->
-  bench_file(Module, Comp, list_to_integer(atom_to_list(N))).
+run([Module, Comp, N, Type]) ->
+  case Type of
+    erjang -> bench_erjang_file(Module, Comp,
+        list_to_integer(atom_to_list(N)));
+    _ ->
+  bench_file(Module, Comp, list_to_integer(atom_to_list(N)), Type)
+end.
 
-bench_file(File, Comp, N) ->
+bench_file(File, Comp, N, Type) ->
   case File of
     prettypr ->
       case get(prettypr_data) of
@@ -28,6 +33,26 @@ bench_file(File, Comp, N) ->
   ErrFile = lists:concat(["results/runtime_", Comp, "-err.res"]),
   file:write_file(ErrFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.stddev])
                   , [append]).
+
+bench_erjang_file(File, Comp, N) ->
+  case File of
+    prettypr ->
+      case get(prettypr_data) of
+	undefined -> {ok,[X]} =
+	  file:consult("prettypr.input"),
+	  put(prettypr_data, X),
+	  ok;
+	_ -> ok
+      end;
+    _ -> ok
+  end,
+  %% Warm Up Erjang
+  _ = warm_up(File, 4),
+  T = run_bench(File, 2),
+  ResFile = lists:concat(["foo"]),
+  file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.median])
+                  , [append]),
+  os:cmd("cat foo >> results/runtime_erjang.res").
 
 run_bench(File, N) when is_integer(N) ->
   Myself = self(),
@@ -58,3 +83,15 @@ run_bench(File, N) when is_integer(N) ->
   receive
     Result -> Result
   end.
+
+
+warm_up(File, 0) -> ok;
+warm_up(File, N) ->
+  T = run_bench(File, 1),
+  ResFile = "baz",
+  file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.median])
+                  , [append]),
+  os:cmd("cat baz >> results/runtime_erjang.analytics"),
+  timer:sleep(1),
+  warm_up(File, N-1).
+

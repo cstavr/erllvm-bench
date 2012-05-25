@@ -3,6 +3,7 @@
 ## Erlc flags to be used in each case:
 HIPE_FLAGS="+native +'{hipe,[{regalloc,coalescing},o2]}'"
 ERLLVM_FLAGS="+native +'{hipe,[o2,to_llvm]}'"
+ERJANG_FLAGS=""
 
 ## All arguments are made globals:
 ACTION=      # The run function to be executed (run_all, run_class)
@@ -65,8 +66,14 @@ run_benchmark ()
 
     EBIN_DIRS=`find ebin/ -maxdepth 1 -mindepth 1 -type d`
 
-    $OTP/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run \
-        $BENCH $COMP $ITERATIONS -s erlang halt
+    if [ "$COMP" = "erjang" ]; then
+        $OTP_ROOT/erjang/ej -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run \
+        $BENCH $COMP $ITERATIONS erjang -s erlang halt
+    else
+        $OTP/bin/erl -pa ebin/ $EBIN_DIRS -noshell -s run_benchmark run \
+        $BENCH $COMP $ITERATIONS other -s erlang halt
+    fi
+
 }
 
 collect_results ()
@@ -200,11 +207,12 @@ main ()
   OTP          = $OTP_ROOT
   HiPE_FLAGS   = $HIPE_FLAGS
   ErLLVM_FLAGS = $ERLLVM_FLAGS
+  Erjang_Flags = $ERJANG_FLAGS
 EOF
     fi
 
     echo "Executing $ITERATIONS iterations/benchmark."
-    for COMP in "beam" "hipe" "erllvm"; do
+    for COMP in "beam" "hipe" "erllvm" "erjang";  do
         ## Proper compile
         make clean > /dev/null
         echo -n "  Re-compiling with $COMP. "
@@ -215,6 +223,9 @@ EOF
         fi
         if [ "$COMP" = "erllvm" ]; then
             ERL_CFLAGS=$ERLLVM_FLAGS
+        fi
+        if [ "$COMP" = "erjang" ]; then
+            ERL_CFLAGS=$ERJANG_FLAGS
         fi
         make ERLC=$OTP_ROOT/otp_$COMP/bin/erlc ERL_COMPILE_FLAGS="$ERL_CFLAGS" \
             > /dev/null 2>&1 &
@@ -227,14 +238,14 @@ EOF
     done
 
     ## Collect results in results/runtime.res:
-    collect_results
+    ./collect_results >> results/runtime.res
 
     ## Plot results:
     plot_diagram runtime.res
 
     ## Backup all result files & diagrams to unique .res files:
     NEW_SUFFIX=`date +"%y.%m.%d-%H:%M:%S"`
-    for c in "" "_beam" "_hipe" "_erllvm"; do
+    for c in "" "_beam" "_hipe" "_erllvm" "_erjang"; do
         mv results/runtime$c.res results/runtime$c-$NEW_SUFFIX.res
         mv results/runtime$c-err.res results/runtime$c-err-$NEW_SUFFIX.res
     done;

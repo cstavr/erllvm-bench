@@ -20,6 +20,7 @@ ifeq ($(FIG2PS),)
 $(error fig2ps is required but it is not found! Aborting.)
 endif
 
+$(shell ghc --make collect_results.hs)
 
 .PHONY: all check clean distclean
 

@@ -58,7 +58,7 @@ regression(Timer, Fun, Args) ->
 
 %% @doc A function that measures execution time more elaborately!
 test_avg(Fun, Args, N) when N > 0 ->
-    Timer = fun regression_timer_1/2,
+    Timer = fun regression_timer_2/2,
     L = test_loop(Fun, Args, Timer, N, []),
     Length = length(L),
     S = #stat{range = #range{min = lists:min(L),
