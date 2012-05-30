@@ -16,7 +16,7 @@
 %% Small, medium, big
 small() -> 10.
 medium() -> 5000000.
-big() -> 50000000.
+big() ->    10000000.
 
 main(N) ->
   Bodies = offset_momentum(bodies()),

@@ -11,9 +11,9 @@
 -export([main/0, main/1]).
 -export([small/0,medium/0,big/0]).
 
-small() -> 160000.
+small() ->  160000.
 medium() -> 1000000.
-big() -> 10000000.
+big() ->    5000000.
 
 main() -> main(["1"]).
 main(Arg) ->

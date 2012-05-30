@@ -8,7 +8,7 @@
 
 small() -> 38.
 medium() -> 42.
-big() -> 46.
+big() -> 44.
 
 main(Arg) ->
     Num = Arg,

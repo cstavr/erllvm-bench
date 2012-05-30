@@ -12,7 +12,7 @@
 
 small() -> 1600.
 medium() -> 1000.
-big() -> 1600.
+big() ->    4000.
 
 
 % conversion

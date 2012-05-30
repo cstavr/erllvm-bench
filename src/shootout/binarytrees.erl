@@ -13,7 +13,7 @@
 %% Small, medium, big
 small() -> 15.
 medium() -> 19.
-big() -> 22.
+big() ->   20.
 
 main(Arg) ->
    N = Arg,

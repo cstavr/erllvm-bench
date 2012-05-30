@@ -47,7 +47,7 @@ bench_erjang_file(File, Comp, N) ->
     _ -> ok
   end,
   %% Warm Up Erjang
-  _ = warm_up(File, 4),
+  _ = warm_up(File, 4, 4),
   T = run_bench(File, 2),
   ResFile = lists:concat(["foo"]),
   file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.median])
@@ -57,11 +57,11 @@ bench_erjang_file(File, Comp, N) ->
 run_bench(File, N) when is_integer(N) ->
   Myself = self(),
   Opts = [], %[{min_heap_size, 100000000}],
-  Size = medium,
+  Size = big,
   ModExports = element(2, lists:keyfind(exports, 1, File:module_info())),
   Args =
     case lists:member({Size,0}, ModExports) of
-      true -> File:medium();
+      true -> File:big();
       false -> []
     end,
   spawn_opt(fun () ->
@@ -85,13 +85,17 @@ run_bench(File, N) when is_integer(N) ->
   end.
 
 
-warm_up(File, 0) -> ok;
-warm_up(File, N) ->
+warm_up(File, 0, M) -> ok;
+warm_up(File, N, M) ->
   T = run_bench(File, 1),
   ResFile = "baz",
   file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.median])
                   , [append]),
+  case N of
+    M -> os:cmd("cat baz >> results/runtime_erjang_1.res");
+    _ -> ok
+  end,
   os:cmd("cat baz >> results/runtime_erjang.analytics"),
   timer:sleep(1),
-  warm_up(File, N-1).
+  warm_up(File, N-1, M).
 
