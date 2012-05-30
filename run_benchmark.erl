@@ -36,7 +36,7 @@ run_bench(File, N) when is_integer(N) ->
   ModExports = element(2, lists:keyfind(exports, 1, File:module_info())),
   Args =
     case lists:member({Size,0}, ModExports) of
-      true -> File:medium();
+      true -> File:Size();
       false -> []
     end,
   spawn_opt(fun () ->
