@@ -17,7 +17,7 @@
 -export([small/0,medium/0,big/0]).
 
 small() -> 160000.
-medium() -> 5000000.
+medium() -> 6000000. % <-- default (9.93 sec)
 big() -> 120000000.
 
 spell(0) -> " zero";

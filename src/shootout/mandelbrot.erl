@@ -9,7 +9,7 @@
 
 small() -> 1000.
 medium() -> 2000.
-big() -> 400000.
+big() -> 16000. % <-- default (6 min)
 
 -define(LIM_SQR, 4.0).
 -define(ITER, 100).

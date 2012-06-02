@@ -10,7 +10,7 @@
 
 small() -> 10.
 medium() -> 11.
-big() -> 12.
+big() -> 12. % <-- default (6 min)
 
 main(N) when N > 0 ->
     {MaxFlips, Checksum} = 

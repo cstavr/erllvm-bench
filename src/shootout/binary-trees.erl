@@ -11,9 +11,9 @@
 -define(Min,4).
 
 %% Small, medium, big
-small() -> 15.
-medium() -> 19.
-big() -> 22.
+small() -> 12.
+medium() -> 20. % <-- default (39.84 sec)
+big() -> 24.
 
 main(Arg) ->
    N = Arg,

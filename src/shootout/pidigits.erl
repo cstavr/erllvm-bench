@@ -1,65 +1,50 @@
-%  The Great Computer Language Shootout
-%   http://shootout.alioth.debian.org/
-%  
-%   contributed by Mark Scandariato
-%
-%   erl -noshell -noinput -run pidigits main 7 
-
+%% The Computer Language Benchmarks Game
+%% http://shootout.alioth.debian.org/
+%%
+%% Contributed by : Alkis Gotovos 10 Oct 2010
 
 -module(pidigits).
+
 -export([main/1]).
 -export([small/0,medium/0,big/0]).
 
 small() -> 1600.
-medium() -> 1000.
+medium() -> 10000. % <-- default (19 sec)
 big() -> 1600.
 
+main(N) when is_integer(N) ->
+    Pid = spawn_link(fun() -> io_worker() end),
+    register(io_worker, Pid),
+    stream({1, 0, 1}, 1, 0, N);
+main([N]) -> main(list_to_integer(N)).
 
-% conversion
-is_safe(Z, N) -> N == extr(Z, 4).
-next(Z)       -> extr(Z, 3).
-prod(Z, N)    -> comp({10, -10*N, 0, 1}, Z).
-cons(Z, Zp)   -> comp(Z, Zp).
+comp({Q, R, T}, {U, V, X}) -> {Q*U, Q*V + R*X, T*X}.
 
-% LFT
--define(unit, {1,0,0,1}).
-comp({Q,R,S,T}, {Qp, Rp, Sp, Tp}) ->
-    {Q*Qp + R*Sp, Q*Rp + R*Tp, S*Qp + T*Sp, S*Rp + T*Tp}.
-extr({Q,R,S,T}, X) -> (Q * X + R) div (S * X + T).
+next({Q, R, T}) -> (Q*3 + R) div T.
 
-lft(K) -> {K, 4*K+2, 0, 2*K+1}.
+safe({Q, R, T}, N) -> N == (Q*4 + R) div T.
 
-stream(N) -> stream(N, 0, 1, ?unit, []).
-stream(N, N, _, _, P) -> ok;
-stream(N, C, K, Z, P) ->
+prod({Z11, Z12, Z22}, N) -> {10*Z11, 10*(Z12 - N*Z22), Z22}.
+
+stream(Z, K, P, N) ->
     Y = next(Z),
-    case is_safe(Z, Y) of
-        true  ->
-            stream(N, C+1, K, prod(Z,Y), update(C,Y,P));
-        false ->
-            stream(N, C, K+1, cons(Z, lft(K)), P)
+    case safe(Z, Y) of
+	true ->
+	    io_worker ! {Y, P + 1, N},
+	    stream(prod(Z, Y), K, P + 1, N);
+	false -> stream(comp(Z, {K, 4*K + 2, 2*K + 1}), K + 1, P, N)
     end.
 
-
-update(C, D, P) when C rem 10 == 0, C > 0 ->
-    print(C, P),
-    [D];
-
-update(_, D, P) -> [D|P].
-
-
-print(C, P) -> do_print(C, lists:reverse(P)).
-
-
-do_print(C, []) when C rem 10 == 0 -> io:fwrite("\t:~p~n", [C]);
-do_print(C, []) -> io:fwrite("~*.1c:~p~n", [10 - C rem 10, $\t, C]);
-do_print(C, [H|T]) -> io:fwrite("~p", [H]), do_print(C, T).
-
-
-main(Arg) ->
-    N = Arg,
-    case N of
-      X when X>1 -> stream(X);
-      _ -> ok
-    end,
-    erlang:exit(ok).
+io_worker() ->
+    receive
+	{Y, N, N} ->
+	    Spaces = (10 - N rem 10) rem 10,
+	    io:fwrite("~w~.*c\t:~w~n", [Y, Spaces, $ , N]),
+	    exit(ok);
+	{Y, P, _N} when P rem 10 == 0 ->
+	    io:fwrite("~w\t:~w~n", [Y, P]),
+	    io_worker();
+	{Y, _P, _N} ->
+	    io:fwrite("~w", [Y]),
+	    io_worker()
+    end.
