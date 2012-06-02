@@ -47,7 +47,7 @@ bench_erjang_file(File, Comp, N) ->
     _ -> ok
   end,
   %% Warm Up Erjang
-  _ = warm_up(File, 4, 4),
+  _ = warm_up(File, 3, 3),
   T = run_bench(File, 2),
   ResFile = lists:concat(["foo"]),
   file:write_file(ResFile, io_lib:fwrite("~w\t~.3f\n", [File, T#stat.median])

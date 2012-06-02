@@ -191,7 +191,7 @@ EOF
     fi
 
     echo "Executing $ITERATIONS iterations/benchmark."
-    for COMP in "beam" "hipe" "erllvm" ;  do
+    for COMP in "erllvm";  do
         ## Proper compile
         make clean > /dev/null
         echo -n "  Re-compiling with $COMP. "
