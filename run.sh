@@ -65,12 +65,6 @@ run_class ()
       ./fasta 25000000 > knucleotide-input.txt
       cp knucleotide-input.txt revcomp-input.txt
 
-      ## Clear existing intermediate result files
-      if [ -r results/shootout_with_input ]; then
-          rm results/shootout_with_input
-          touch results/shootout_with_input
-      fi
-
       ## Execute the bad benchmarks
       for l in `seq 1 $ITERATIONS`; do
         echo "   --- regexdna"
