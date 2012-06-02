@@ -60,13 +60,16 @@ run_class ()
 
     if [ "$CLASS" = "shootout" ]; then
       ## Generate inputs for testcases that need input from stdin
+      echo "  Generating appropriate inputs for benchmarks"
       ./fasta  5000000 > regexdna-input.txt
       ./fasta 25000000 > knucleotide-input.txt
       cp knucleotide-input.txt revcomp-input.txt
 
       ## Clear existing intermediate result files
-      rm results/shootout_with_input
-      touch results/shootout_with_input
+      if [ -r results/shootout_with_input ]; then
+          rm results/shootout_with_input
+          touch results/shootout_with_input
+      fi
 
       ## Execute the bad benchmarks
       for l in `seq 1 $ITERATIONS`; do
