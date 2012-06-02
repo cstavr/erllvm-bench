@@ -66,13 +66,15 @@ run_class ()
 
       ## Clear existing intermediate result files
       rm results/shootout_with_input
+      touch results/shootout_with_input
 
       ## Execute the bad benchmarks
       for l in `seq 1 $ITERATIONS`; do
         echo "   --- regexdna"
         exec 3>&1 4>&2
-        time=$( { time  `$OTP/bin/erl -pa ebin/shootout -run -noinput -run regexdna main 0 \
-             < regexdna-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
+        time=$( { time  `$OTP/bin/erl -pa ebin/shootout -smp disable -noshell \
+            -run -noinput -run regexdna main 0 < regexdna-input.txt > /dev/null` \
+            1>&3 2>&4; } 2>&1 )  # Captures time only.
         exec 3>&- 4>&-
         echo "regex-dna" $time >> results/shootout_with_input
       done
@@ -80,8 +82,9 @@ run_class ()
       for l in `seq 1 $ITERATIONS`; do
         echo "   --- knucleotide"
         exec 3>&1 4>&2
-        time=$( { time  `$OTP/bin/erl -pa ebin/shootout -run -noinput -run knucleotide main 0 \
-               < knucleotide-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
+        time=$( { time  `$OTP/bin/erl -pa ebin/shootout -smp disable -noshell \
+            -run knucleotide main 0 < knucleotide-input.txt > /dev/null` \
+            1>&3 2>&4; } 2>&1 )  # Captures time only.
         exec 3>&- 4>&-
         echo "k-nucleotide" $time >> results/shootout_with_input
       done
@@ -89,8 +92,9 @@ run_class ()
       for l in `seq 1 $ITERATIONS`; do
         echo "   --- revcomp"
         exec 3>&1 4>&2
-        time=$( { time  `$OTP/bin/erl -pa ebin/shootout -run -noinput -run regexdna main 0 \
-             < revcomp-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
+        time=$( { time  `$OTP/bin/erl -pa ebin/shootout -smp disable -noshell \
+            -run revcomp main 0 < revcomp-input.txt > /dev/null` \
+            1>&3 2>&4; } 2>&1 )  # Captures time only.
         exec 3>&- 4>&-
         echo "reverse-complement" $time >> results/shootout_with_input
        done
