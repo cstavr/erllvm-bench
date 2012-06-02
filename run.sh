@@ -58,33 +58,35 @@ run_class ()
         run_benchmark
     done
 
-   ./fasta  5000000 > regexdna-input.txt
-   ./fasta 25000000 > knucleotide-input.txt
-   cp knucleotide-input.txt revcomp-input.txt
 
-   for l in `seq 0 10`; do
-     exec 3>&1 4>&2
-     time=$( { time  `$OTP_ROOT/bin/erl -pa ebin/shootout -run -noinput -run regexdna main 0\
-           < regexdna-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
-     exec 3>&- 4>&-
-     echo "regexdna" $time >> shootout_with_input
-   done
+    if [ "$CLASS" = "shootout" ]; then
+      ./fasta  5000000 > regexdna-input.txt
+      ./fasta 25000000 > knucleotide-input.txt
+      cp knucleotide-input.txt revcomp-input.txt
+      for l in `seq 0 10`; do
+        exec 3>&1 4>&2
+        time=$( { time  `$OTP_ROOT/bin/erl -pa ebin/shootout -run -noinput -run regexdna main 0\
+             < regexdna-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
+        exec 3>&- 4>&-
+        echo "regexdna" $time >> shootout_with_input
+      done
 
-   for l in `seq 0 10`; do
-     exec 3>&1 4>&2
-     time=$( { time  `$OTP_ROOT/bin/erl -pa ebin/shootout -run -noinput -run knucleotide main 0\
-           < knucleotide-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
-     exec 3>&- 4>&-
-     echo "knucleotide:" $time >> shootout_with_input
-   done
+      for l in `seq 0 10`; do
+        exec 3>&1 4>&2
+        time=$( { time  `$OTP_ROOT/bin/erl -pa ebin/shootout -run -noinput -run knucleotide main 0\
+               < knucleotide-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
+        exec 3>&- 4>&-
+        echo "knucleotide:" $time >> shootout_with_input
+      done
 
-   for l in `seq 0 10`; do
-     exec 3>&1 4>&2
-     time=$( { time  `$OTP_ROOT/bin/erl -pa ebin/shootout -run -noinput -run regexdna main 0\
-           < revcomp-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
-     exec 3>&- 4>&-
-     echo "revcomp:" $time >> shootout_with_input
-   done
+      for l in `seq 0 10`; do
+        exec 3>&1 4>&2
+        time=$( { time  `$OTP_ROOT/bin/erl -pa ebin/shootout -run -noinput -run regexdna main 0\
+             < revcomp-input.txt >/dev/null` 1>&3 2>&4; } 2>&1 )  # Captures time only.
+        exec 3>&- 4>&-
+        echo "revcomp:" $time >> shootout_with_input
+       done
+    fi
 }
 
 run_benchmark ()
