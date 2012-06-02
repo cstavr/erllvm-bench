@@ -37,7 +37,7 @@ run_class ()
 
     ## Get boilerplate
     BOILERPLATE=src/$CLASS/boilerplate
-    if [ -r  $BOILERPLATE ]; then
+    if [ -r $BOILERPLATE ]; then
         skipped="$skipped `cat $BOILERPLATE`"
     fi
 
@@ -205,6 +205,12 @@ EOF
 
     echo "Executing $ITERATIONS iterations/benchmark."
     for COMP in "beam" "hipe" "erllvm"; do
+        ## Remove intermediate files from un-completed former run
+        if [ -r results/runtime_$COMP.res ]; then
+          rm results/runtime_$COMP.res
+          touch results/runtime_$COMP.res
+        fi
+
         ## Proper compile
         make clean > /dev/null
         echo -n "  Re-compiling with $COMP. "
