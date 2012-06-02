@@ -15,8 +15,8 @@
 
 %% Small, medium, big
 small() -> 10.
-medium() -> 5000000.
-big() -> 50000000. % <-- default (161.24 sec)
+medium() -> 50000000. % <-- default (161.24 sec)
+big() -> 100000000. % untested.
 
 main(N) ->
   Bodies = offset_momentum(bodies()),

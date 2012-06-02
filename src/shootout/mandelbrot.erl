@@ -8,8 +8,8 @@
 -export([small/0,medium/0,big/0]).
 
 small() -> 1000.
-medium() -> 2000.
-big() -> 16000. % <-- default (6 min)
+medium() -> 16000. % <-- default (6 min)
+big() -> 20000. % untested.
 
 -define(LIM_SQR, 4.0).
 -define(ITER, 100).

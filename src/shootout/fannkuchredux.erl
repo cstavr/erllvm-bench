@@ -9,8 +9,8 @@
 -export([small/0,medium/0,big/0]).
 
 small() -> 10.
-medium() -> 11.
-big() -> 12. % <-- default (6 min)
+medium() -> 12. % <-- default (6 min)
+big() -> 14. % untested.
 
 main(N) when N > 0 ->
     {MaxFlips, Checksum} = 
