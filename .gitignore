@@ -10,3 +10,7 @@ diagrams/*
 *.o
 erl_crash.dump
 io_file
+fasta
+knucleotide-input.txt
+regexdna-input.txt
+revcomp-input.txt
