@@ -23,14 +23,17 @@ endif
 
 .PHONY: all check clean distclean
 
-all: $(BEAM_FILES)
+all: $(BEAM_FILES) fasta
 	@(cd src && make EBIN_DIR=../$(EBIN_DIR) ERLC=$(ERLC) ERL_COMPILE_FLAGS="$(ERL_COMPILE_FLAGS)" $@)
 
 %.beam: %.erl
 	$(ERLC) $(ERL_COMPILE_FLAGS) -o $(EBIN_DIR) $<
 
+fasta:
+	gcc fasta.c -o fasta
+
 clean:
-	$(RM) ebin/$(BEAM_FILES) io_file
+	$(RM) ebin/$(BEAM_FILES) io_file fasta revcomp-input.txt regexdna-input.txt knucleotide-input.txt
 	@(cd src && $(MAKE) EBIN_DIR=../$(EBIN_DIR) $@)
 
 distclean: clean
