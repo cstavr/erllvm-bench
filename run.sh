@@ -112,7 +112,7 @@ collect_results ()
 {
     echo "Collecting results..."
 
-    echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM (millisecs)" \
+    echo "### Benchmark BEAM/ErLLVM HiPE/ErLLVM BEAM HiPE ErLLVM (secs)" \
         > results/runtime.res
     pr -m -t results/runtime_beam.res results/runtime_hipe.res \
         results/runtime_erllvm.res \
