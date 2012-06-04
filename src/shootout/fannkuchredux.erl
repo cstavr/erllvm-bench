@@ -6,12 +6,14 @@
 -module(fannkuchredux).
 
 -export([main/1]).
--export([small/0,medium/0,big/0]).
+-export([small/0, medium/0, big/0]).
 
 small() -> 10.
-medium() -> 11.
-big() -> 12.
+medium() -> 12.
+big() -> medium().
 
+main([Arg]) ->
+    main(list_to_integer(Arg));
 main(N) when N > 0 ->
     {MaxFlips, Checksum} = 
 	case N of

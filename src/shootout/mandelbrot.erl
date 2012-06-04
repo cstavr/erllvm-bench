@@ -4,22 +4,20 @@
 
 -module(mandelbrot).
 -export([main/1]).
-
--export([small/0,medium/0,big/0]).
-
-small() -> 1000.
-medium() -> 2000.
-big() -> 3000.
+-export([small/0, medium/0, big/0]).
 
 -define(LIM_SQR, 4.0).
--define(ITER, 100).
+-define(ITER, 50).
 -define(SR, -1.5).
 -define(SI, -1).
 
-main(Arg) ->
-    N = Arg,
-    M = integer_to_list(Arg),
-    io:put_chars(["P4\n", M, " ", M, "\n"]),
+small() -> 1000.
+medium() -> 16000.
+big() -> medium().
+
+main([Arg]) ->
+    N = list_to_integer(Arg),
+    io:put_chars(["P4\n", Arg, " ", Arg, "\n"]),
     
     %% Spawn one process per row
     Row = fun(Y)-> spawn(fun()-> row(0, ?SI+Y*2/N, N, 0, [], 7) end) end,

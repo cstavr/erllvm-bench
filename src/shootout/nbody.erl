@@ -6,28 +6,33 @@
 
 -module(nbody).
 -export([main/1]).
--export([small/0,medium/0,big/0]).
+
+-export([small/0, medium/0, big/0]).
 
 -define(pi, 3.14159265358979323).
 -define(solar_mass, (4 * ?pi * ?pi)).
 -define(days_per_year, 365.24).
 -define(f(X), is_float(X)).
 
-%% Small, medium, big
-small() -> 10.
-medium() -> 5000000.
-big() ->    10000000.
+small() -> 500000.
+medium() -> 50000000.
+big() -> medium().
+
+main([Arg]) ->
+    N = list_to_integer(Arg),
+    main(N),
+    exit(ok);
 
 main(N) ->
   Bodies = offset_momentum(bodies()),
-  energy(Bodies),
-  energy(advance(N, Bodies, 0.01)).
+  io:format("~.9f\n", [energy(Bodies)]),
+  io:format("~.9f\n", [energy(advance(N, Bodies, 0.01))]).
 
 offset_momentum(Bodies = [{X, Y, Z, _, _, _, Ms} | T])
     when ?f(X),?f(Y),?f(Z),?f(Ms) ->
-  {Px, Py, Pz} = lists:foldl(fun({_, _, _, Vx, Vy, Vz, M}, {Px, Py, Pz})
-                                     when ?f(Vx),?f(Vy),?f(M),?f(Px),?f(Py),
-                                     ?f(Pz) ->
+  {Px, Py, Pz} = lists:foldl(fun({_, _, _, Vx, Vy, Vz, M}, {Px, Py, Pz}) 
+				     when ?f(Vx),?f(Vy),?f(M),?f(Px),?f(Py),
+				     ?f(Pz) ->
                                {Px + Vx * M, Py + Vy * M, Pz + Vz * M}
                              end,
                              {0.0, 0.0, 0.0},
@@ -40,7 +45,7 @@ energy([], E) -> E;
 energy([{X, Y, Z, Vx, Vy, Vz, M} | T], E)
   when ?f(X),?f(Y), ?f(Z), ?f(Vx), ?f(Vy), ?f(Vz), ?f(M), ?f(E) ->
   energy(T, lists:foldl(fun({X2, Y2, Z2, _, _, _, M2}, Ea)
-                           when ?f(X2),?f(Y2),?f(Z2),?f(M2),?f(Ea) ->
+			   when ?f(X2),?f(Y2),?f(Z2),?f(M2),?f(Ea) ->
                           Dx = X - X2,
                           Dy = Y - Y2,
                           Dz = Z - Z2,
@@ -139,3 +144,4 @@ bodies() ->
   5.15138902046611451e-05 * ?solar_mass
   }
 ].
+

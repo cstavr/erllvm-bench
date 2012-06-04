@@ -4,19 +4,17 @@
 % contributed by Isaac Gouy (Erlang novice)
 
 -module(binarytrees). 
-
--export([main/1]).
--export([small/0,medium/0,big/0]).
+-export([main/1]). 
+-export([small/0, medium/0, big/0]).
 
 -define(Min,4).
 
-%% Small, medium, big
-small() -> 15.
-medium() -> 19.
-big() ->   20.
+small() -> 12.
+medium() -> 20.
+big() -> medium().
 
-main(Arg) ->
-   N = Arg,
+main([Arg]) ->
+   N = list_to_integer(Arg),
    Max = lists:max([?Min+2,N]),
 
    Stretch = Max + 1,
@@ -27,9 +25,7 @@ main(Arg) ->
    depthLoop(?Min,Max),
 
    io:fwrite("long lived tree of depth ~w\t check: ~w~n", 
-      [ Max, itemCheck(LongLivedTree) ]),
-
-   exit(ok).
+      [ Max, itemCheck(LongLivedTree) ]).
 
 
 depthLoop(D,M) when D > M -> ok;

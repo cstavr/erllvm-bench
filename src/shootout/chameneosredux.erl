@@ -12,13 +12,14 @@
 
 -module(chameneosredux).
 -export([main/1]).
+-export([small/0, medium/0, big/0]).
 
 -import(lists, [foreach/2]).
--export([small/0,medium/0,big/0]).
 
-small() -> 160000.
-medium() -> 5000000.
-big() -> 120000000.
+small() -> 60000.
+medium() -> 6000000.
+big() -> medium().
+
 
 spell(0) -> " zero";
 spell(N) -> spell(N, []).
@@ -91,11 +92,10 @@ cleanup(N, M) ->
     end.
 
 
-main(Arg) ->
-    N = Arg,
+main([Arg]) ->
+    N = list_to_integer(Arg),
     show_complements(),
     run([blue, red, yellow], N),
     run([blue, red, yellow, red, yellow, blue, red, yellow, red, blue], N),
-    io:fwrite("~n"),
-    exit(ok).
+    io:fwrite("~n").
 

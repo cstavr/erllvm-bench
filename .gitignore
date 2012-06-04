@@ -1,5 +1,6 @@
 ebin/
 results/*
+analytics/*
 diagrams/*
 *~
 \#*
@@ -10,3 +11,6 @@ diagrams/*
 *.o
 erl_crash.dump
 io_file
+*.log
+stdout
+*.pyc
